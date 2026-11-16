@@ -142,6 +142,16 @@ export class Engine {
     if (this.scene && this.level) this.setScene(this.scene, this.level);
   }
 
+  /** Recon mode: reset the scene and show test case `i` without running anything. */
+  preview(i: number) {
+    if (!this.scene || !this.level) return;
+    this.setScene(this.scene, this.level);
+    const t = this.level.tests[i];
+    if (!t) return;
+    this.scene.preview?.(this, this.level, i);
+    this.setBanner(`סיור: ${t.label}`, '#9fe8ff');
+  }
+
   cancel() {
     this.gen++;
     const pending = this.anims;

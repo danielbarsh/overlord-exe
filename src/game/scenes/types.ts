@@ -22,6 +22,8 @@ export interface SceneModule {
   drawFront?(e: Engine, ctx: CanvasRenderingContext2D): void;
   /** Animate the result. Must resolve when done; throws Cancelled if interrupted. */
   play(e: Engine, pb: Playback): Promise<void>;
+  /** Show test case `i` statically so the student can scout it before writing code. */
+  preview?(e: Engine, level: SubLevel, i: number): void;
   /** small reaction when the code didn't compile */
   onCompileError?(e: Engine): Promise<void>;
 }

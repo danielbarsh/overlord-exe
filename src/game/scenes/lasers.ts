@@ -49,11 +49,18 @@ export const laserScene: SceneModule = {
     sfx.laserHum(false);
   },
 
+  preview(e, level, i) {
+    const s = st(e);
+    const sc = level.tests[i]?.scene ?? {};
+    s.color = (sc.color as string) ?? 'RED';
+    s.power = (sc.power as number) ?? null;
+  },
+
   update(e) {
     const s = st(e);
     const r = e.robot;
     // shield sparks while pushing through red beams
-    if (s.color === 'RED' && s.on > 0.5 && s.disabled < 0.5 && r.visible && Math.abs(r.x - LX) < 50 && r.shield > 0.5 && Math.random() < 0.7) {
+    if ((s.color === 'RED' || s.color === 'YELLOW') && s.on > 0.5 && s.disabled < 0.5 && r.visible && Math.abs(r.x - LX) < 50 && r.shield > 0.5 && Math.random() < 0.7) {
       e.sparks(LX + (Math.random() - 0.5) * 20, r.y + (Math.random() - 0.5) * 60, 2, '#ffb0c0', 220);
     }
   },
@@ -129,7 +136,8 @@ export const laserScene: SceneModule = {
     ctx.font = '700 11px "JetBrains Mono", monospace';
     ctx.textAlign = 'center';
     ctx.fillStyle = active ? col : '#666';
-    ctx.fillText(s.color === 'OFF' ? 'OFFLINE' : s.color, LX, 74);
+    // shows exactly what Sensor.ReadColor() returns
+    ctx.fillText(s.color, LX, 74);
     if (s.power !== null) {
       const pw = s.power / 100;
       ctx.fillStyle = '#0a0e22';

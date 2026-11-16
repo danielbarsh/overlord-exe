@@ -4,19 +4,40 @@ import { PLAYABLE, STAGES, TIER_LABEL, type LevelRef } from '../game/stagesConfi
 import type { AuraMood } from '../game/types';
 import { AuraHologram } from './AuraHologram';
 import { RichText } from './RichText';
+import { sfx } from '../game/audio';
+
+function Section({ title, items, color, mono }: { title: string; items: string[]; color: string; mono?: boolean }) {
+  return (
+    <div className="mt-2">
+      <div className="text-[12px] font-bold tracking-wide" style={{ color }}>{title}</div>
+      <ul className={`mt-1 grid gap-0.5 ${mono ? 'text-[13px]' : ''}`}>
+        {items.map((t, i) => (
+          <li key={i} className="flex items-start gap-2">
+            <span className="mt-[2px] text-white/35">•</span>
+            <span><RichText text={t} /></span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
 
 interface Props {
   engine: Engine;
   current: LevelRef;
   aura: { mood: AuraMood; text: string; key: number };
   success: boolean;
+  running: boolean;
   onNext: () => void;
   onStay: () => void;
 }
 
-export function GameView({ engine, current, aura, success, onNext, onStay }: Props) {
+export function GameView({ engine, current, aura, success, running, onNext, onStay }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [briefOpen, setBriefOpen] = useState(true);
+  const [scouting, setScouting] = useState<number | null>(null);
+
+  useEffect(() => setScouting(null), [current.level.id, running]);
 
   useEffect(() => {
     engine.attach(canvasRef.current!);
@@ -32,6 +53,30 @@ export function GameView({ engine, current, aura, success, onNext, onStay }: Pro
       <div className="relative min-h-[170px] flex-1 overflow-hidden bg-void">
         <canvas ref={canvasRef} className="absolute inset-0 block" aria-label="מתקן האבטחה של AURA" />
         <AuraHologram mood={aura.mood} text={aura.text} sayKey={aura.key} />
+
+        {/* recon: look at every scenario before writing code */}
+        {level.tests.length > 1 && !success && (
+          <div className="absolute bottom-2 left-1/2 z-20 flex -translate-x-1/2 items-center gap-1.5 rounded-full border border-neon-cyan/30 bg-black/60 px-2.5 py-1 backdrop-blur-sm">
+            <span className="text-[12px] font-bold text-neon-cyan" title="לחץ על תרחיש כדי לראות אותו לפני שאתה כותב קוד">
+              👁 סיור:
+            </span>
+            {level.tests.map((t, i) => (
+              <button
+                key={i}
+                disabled={running}
+                title={t.label}
+                onClick={() => {
+                  sfx.click();
+                  engine.preview(i);
+                  setScouting(i);
+                }}
+                className={`grid h-6 min-w-6 place-items-center rounded-full border px-1.5 text-[12px] font-bold transition disabled:cursor-not-allowed disabled:opacity-30 ${scouting === i ? 'border-neon-cyan bg-neon-cyan text-black' : 'border-white/25 text-white/80 hover:border-neon-cyan'}`}
+              >
+                {i + 1}
+              </button>
+            ))}
+          </div>
+        )}
 
         {success && (
           <div className="absolute inset-0 z-30 grid place-items-center bg-black/45 backdrop-blur-[2px]">
@@ -88,7 +133,19 @@ export function GameView({ engine, current, aura, success, onNext, onStay }: Pro
                 <RichText text={line} />
               </p>
             ))}
-            <ul className="mt-2 grid gap-1">
+            {level.rules && (
+              <Section title="📖 חוקי השטח" color={stage.color} items={level.rules} />
+            )}
+            {level.tools && (
+              <Section title="🧰 ציוד זמין" color={stage.color} items={level.tools} mono />
+            )}
+            {level.tests.length > 1 && (
+              <p className="mt-2 text-[12.5px] text-neon-cyan/85">
+                👁 יש {level.tests.length} תרחישים שונים. לחץ על המספרים ב"סיור" שמתחת לזירה ותסתכל מה מחכה לרובוט בכל אחד — ואז תחליט מה הקוד צריך לעשות.
+              </p>
+            )}
+            <div className="mt-2 text-[12px] font-bold tracking-wide" style={{ color: stage.color }}>🎯 מטרה</div>
+            <ul className="mt-1 grid gap-1">
               {level.objectives.map((o, i) => (
                 <li key={i} className="flex items-start gap-2">
                   <span className="mt-[3px] grid h-4 w-4 shrink-0 place-items-center rounded border text-[10px]" style={{ borderColor: stage.color, color: stage.color }}>

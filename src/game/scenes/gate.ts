@@ -37,6 +37,14 @@ export const gateScene: SceneModule = {
     e.eyeColor = '#ff2bd6';
   },
 
+  preview(e, level, i) {
+    const s = st(e);
+    s.lines = (level.tests[i]?.input ?? []).map((inp) => {
+      const text = `AURA> ${inp}`;
+      return { text, color: '#ff2bd6', shown: text.length };
+    });
+  },
+
   update(e, dt) {
     const s = st(e);
     if (s.alarm > 0 && Math.random() < dt * 3) e.eyeGlow = 0.6 + Math.random() * 0.4;
@@ -159,12 +167,15 @@ export const gateScene: SceneModule = {
     ctx.fillText(s.prompt.slice(0, 28), KX + 10, KY + 20);
     ctx.fillStyle = 'rgba(255,176,32,.4)';
     ctx.fillRect(KX + 10, KY + 26, KW - 20, 1);
-    ctx.font = '600 13px "JetBrains Mono", monospace';
     const visible = s.lines.slice(-5);
+    // long lines (e.g. "AGENT Ghost IN SECTOR B7") get a smaller font instead of being cut
+    const long = visible.some((l) => l.text.length > 22);
+    const max = long ? 25 : 22;
+    ctx.font = `600 ${long ? 11 : 13}px "JetBrains Mono", monospace`;
     visible.forEach((l, i) => {
       ctx.fillStyle = l.color;
       const txt = l.text.slice(0, Math.floor(l.shown));
-      ctx.fillText(txt.length > 22 ? txt.slice(0, 21) + '…' : txt, KX + 10, KY + 46 + i * 19);
+      ctx.fillText(txt.length > max ? txt.slice(0, max - 1) + '…' : txt, KX + 10, KY + 46 + i * 19);
     });
     if (Math.sin(t * 6) > 0 && s.status === 'idle') {
       ctx.fillStyle = '#22e4ff';

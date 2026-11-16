@@ -13,7 +13,8 @@ import { getScene } from './game/scenes';
 import { PLAYABLE } from './game/stagesConfig';
 import type { AuraMood } from './game/types';
 
-const STORE_KEY = 'overlord-exe-v1';
+const STORE_KEY = 'overlord-exe-v2';
+const OLD_STORE_KEY = 'overlord-exe-v1';
 interface Saved {
   idx: number;
   unlocked: number;
@@ -23,10 +24,34 @@ interface Saved {
   muted: boolean;
 }
 
+/**
+ * v1 had 3 sub-levels per stage; v2 has 4 (a new practice level before each boss).
+ * The old boss "S-3" is now "S-4", and flat indexes shift accordingly.
+ */
+function migrateV1(old: Saved): Saved {
+  const id = (k: string) => k.replace(/^(\d+)-3$/, '$1-4');
+  const remap = <T,>(o: Record<string, T> = {}) => Object.fromEntries(Object.entries(o).map(([k, v]) => [id(k), v]));
+  const flat = (i: number) => {
+    const stage = Math.floor(i / 3);
+    const sub = i % 3;
+    return stage * 4 + (sub === 2 ? 3 : sub);
+  };
+  return {
+    ...old,
+    idx: flat(old.idx ?? 0),
+    unlocked: flat(old.unlocked ?? 0),
+    completed: (old.completed ?? []).map(id),
+    codes: remap(old.codes),
+    hints: remap(old.hints),
+  };
+}
+
 function loadSaved(): Saved | null {
   try {
     const raw = localStorage.getItem(STORE_KEY);
-    return raw ? (JSON.parse(raw) as Saved) : null;
+    if (raw) return JSON.parse(raw) as Saved;
+    const old = localStorage.getItem(OLD_STORE_KEY);
+    return old ? migrateV1(JSON.parse(old) as Saved) : null;
   } catch {
     return null;
   }
@@ -264,6 +289,7 @@ export default function App() {
           current={current}
           aura={aura}
           success={success}
+          running={running}
           onNext={() => goTo(idx + 1)}
           onStay={() => setSuccess(false)}
         />

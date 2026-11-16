@@ -12,7 +12,7 @@ npm run build
 ## Layout
 | Path | What |
 |---|---|
-| `src/game/stagesConfig.ts` | **All level content**: 7 stages × 3 sub-levels (warm-up, practice, boss). Stages 1–4 are playable; 5–7 are present but have `levels: []`. |
+| `src/game/stagesConfig.ts` | **All level content**: 7 stages × 4 sub-levels (warm-up, practice, practice, boss). Briefs describe the world (`rules`, `tools`), not the code; players scout each test case with the recon bar. Stages 1–4 are playable; 5–7 are present but have `levels: []`. |
 | `src/game/levels/` | Per-stage level files (`stage3.ts`, `stage4.ts`) and shared helpers (`main`, `fail`) |
 | `src/game/types.ts` | `Stage`, `SubLevel`, `TestCase`, `Verdict` |
 | `src/game/csharp/` | Simulated C#: `lexer`, `parser`, `checker` (CS-style errors), `interpreter` |

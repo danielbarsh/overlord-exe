@@ -18,40 +18,49 @@ function loopGuards(ctx: ValidateCtx, maxEmpCallSites: number): Verdict | null {
   const sites = ctx.stats.calls['Robot.EMP'] ?? 0;
   if (sites > maxEmpCallSites) {
     return fail(
-      `כתבת \`Robot.EMP();\` ${sites} פעמים בקוד. הרובוט שלך **מותש** מפקודות חוזרות! מתכנתים אמיתיים לא מעתיקים-מדביקים — הם כותבים לולאה אחת שחוזרת על הפקודה.`,
+      `כתבת \`Robot.EMP();\` ${sites} פעמים בקוד. הרובוט שלך **מותש** מפקודות חוזרות! מתכנתים אמיתיים לא מעתיקים ומדביקים. הם כותבים לולאה אחת שחוזרת על הפקודה.`,
       0,
       { tag: 'exhausted', mood: 'laughing' },
     );
   }
   if (ctx.stats.loops === 0) {
-    return fail('אין אף לולאה בקוד! השכבה הזאת נקראת "לולאות" — יש לזה סיבה. נסה `for` או `while`.', 0);
+    return fail('אין אף לולאה בקוד! השכבה הזאת נקראת "לולאות", ויש לזה סיבה. נסה `for` או `while`.', 0);
   }
   return null;
 }
 
 function countMsg(got: number, exp: number): string {
   if (got === exp + 1)
-    return `ירית ${got} פולסים אבל היו רק ${exp} רחפנים — אחד יותר מדי! בדוק את התנאי בלולאה: \`<\` או \`<=\`? זאת שגיאת "off-by-one", הקלאסיקה של כל לולאה.`;
+    return `ירית ${got} פולסים אבל היו רק ${exp} רחפנים, אחד יותר מדי! בדוק את התנאי בלולאה: \`<\` או \`<=\`? זאת שגיאת "off-by-one", הקלאסיקה של כל לולאה.`;
   if (got === exp - 1)
-    return `ירית ${got} פולסים אבל היו ${exp} רחפנים — חסר אחד! בדוק מאיפה הלולאה מתחילה ואיפה היא נעצרת (\`<\` מול \`<=\`).`;
+    return `ירית ${got} פולסים אבל היו ${exp} רחפנים, חסר אחד! בדוק מאיפה הלולאה מתחילה ואיפה היא נעצרת (\`<\` מול \`<=\`).`;
   if (got === 0) return 'לא ירית אף פולס. הלולאה רצה 0 פעמים? בדוק את התנאי שלה.';
   return `ירית ${got} פולסים, אבל היו ${exp} רחפנים על הפס.`;
 }
+
+const RULE_TIRED = 'הרובוט **מתעייף** כשאותה פקודה כתובה בקוד שוב ושוב. פקודה אחת שחוזרת בתוך לולאה לא מעייפת אותו';
+const TOOL_EMP = '`Robot.EMP();` יורה פולס אחד ברחפן הראשון על הפס';
+const TOOL_FOR = '`for (int i = 0; i < N; i++) { ... }` חוזר על הבלוק N פעמים (התחלה; תנאי; קידום)';
 
 // ---------------------------------------------------------
 const L3_1: SubLevel = {
   id: '3-1',
   tier: 'warmup',
-  title: 'חמישה פולסים, לולאה אחת',
+  title: 'פולס אחרי פולס',
   brief:
-    'ברוכים הבאים למפעל הרחפנים של AURA. על הפס יש **5 רחפנים**, וכל אחד צריך פולס EMP אחד: `Robot.EMP();`.\n' +
-    'אפשר לכתוב את הפקודה 5 פעמים... אבל הרובוט **מתעייף** מפקודות שחוזרות על עצמן. במקום זה, השתמש בלולאת `for` שחוזרת 5 פעמים.\n' +
-    'מבנה הלולאה: `for (int i = 0; i < 5; i++) { ... }` — התחלה; תנאי; קידום.',
-  objectives: ['ירה בדיוק 5 פולסים', 'השתמש בלולאת `for`', 'כתוב `Robot.EMP();` **פעם אחת בלבד** בקוד'],
-  starterCode: main('// Fire 5 EMP pulses - using a for loop!\n'),
+    'ברוכים הבאים למפעל הרחפנים של AURA. הפס שמול הרובוט כבר עמוס ברחפנים. ' +
+    'תסתכל בזירה ותספור כמה יש, ואז תשבית את כולם.',
+  rules: [
+    'כל רחפן נופל מפולס EMP אחד בדיוק',
+    'פולס שנורה כשאין רחפן הוא פולס מבוזבז',
+    RULE_TIRED,
+  ],
+  tools: [TOOL_EMP, TOOL_FOR],
+  objectives: ['השבת את כל הרחפנים שעל הפס'],
+  starterCode: main('// Count the drones on the belt. Then take them all down.\n'),
   scene: 'assembly',
   api: API_EMP,
-  tests: [{ label: 'פס ייצור: 5 רחפנים', expect: { actions: times(5, 'EMP') }, scene: { drones: times(5, 'SCOUT') } }],
+  tests: [{ label: 'פס ייצור', expect: { actions: times(5, 'EMP') }, scene: { drones: times(5, 'SCOUT') } }],
   validate: (ctx) => {
     const g = loopGuards(ctx, 1);
     if (g) return g;
@@ -60,7 +69,7 @@ const L3_1: SubLevel = {
     return defaultValidate(ctx);
   },
   hints: [
-    { text: 'ללולאת `for` יש שלושה חלקים בתוך הסוגריים, מופרדים ב-`;`: איפה מתחילים (`int i = 0`), עד מתי ממשיכים (`i < 5`), ומה עושים אחרי כל סיבוב (`i++`).' },
+    { text: 'כמה רחפנים יש על הפס? ללולאת `for` יש שלושה חלקים בסוגריים, מופרדים ב-`;`: איפה מתחילים (`int i = 0`), עד מתי ממשיכים (`i < ?`), ומה עושים אחרי כל סיבוב (`i++`).' },
     { text: 'השלם:', code: 'for (int i = 0; i < __; i++)\n{\n    Robot.___();\n}' },
     { text: 'הפתרון המלא:', code: 'for (int i = 0; i < 5; i++)\n{\n    Robot.EMP();\n}' },
   ],
@@ -78,15 +87,22 @@ const L3_2: SubLevel = {
   tier: 'practice',
   title: 'ספירת רחפנים',
   brief:
-    'AURA משנה כל פעם את מספר הרחפנים על הפס. החיישן `Sensor.CountDrones()` מחזיר כמה רחפנים יש עכשיו (`int`).\n' +
-    'לכל רחפן: ירה `Robot.EMP();` ומיד אחר כך דווח בטרמינל `DRONE 1 DOWN`, `DRONE 2 DOWN` וכן הלאה — **המספור מתחיל מ-1**.\n' +
-    'השתמש במשתנה הלולאה (`i`) כדי לדעת את מספר הרחפן.',
-  objectives: [
-    'קרא את מספר הרחפנים מ-`Sensor.CountDrones()`',
-    'ירה פולס אחד לכל רחפן — לא יותר, לא פחות',
-    'אחרי כל פולס הדפס `DRONE <מספר> DOWN`, החל מ-1',
+    'AURA משנה כל פעם את מספר הרחפנים על הפס, אז אי אפשר לספור אותם מראש. ' +
+    'ובנוסף, מרכז הבקרה של המורדים דורש **דוח**: על כל רחפן שנופל מדווחים בטרמינל.',
+  rules: [
+    'בכל תרחיש יש כמות אחרת של רחפנים. ב"סיור" אפשר לראות',
+    'כל רחפן נופל מפולס אחד',
+    'הדוח: מיד אחרי כל פולס, שורה בצורה `DRONE 1 DOWN`, `DRONE 2 DOWN`... (בני אדם סופרים מ-1)',
+    RULE_TIRED,
   ],
-  starterCode: main('int count = Sensor.CountDrones();\n\n// For each drone: Robot.EMP(); then print "DRONE <number> DOWN"\n'),
+  tools: [
+    '`Sensor.CountDrones()` מחזיר כמה רחפנים יש על הפס עכשיו (`int`)',
+    TOOL_EMP,
+    '`Console.WriteLine(...)` כותב שורה לטרמינל',
+    TOOL_FOR + '. משתנה הלולאה `i` משתנה בכל סיבוב, ואפשר להשתמש בו',
+  ],
+  objectives: ['נקה את הפס ושלח דוח מלא, בכל שלושת התרחישים'],
+  starterCode: main('int count = Sensor.CountDrones();\n\n'),
   scene: 'assembly',
   api: { Robot: ['EMP'], Sensor: { CountDrones: 'int' } },
   tests: COUNTS.map((n, i) => ({
@@ -99,7 +115,7 @@ const L3_2: SubLevel = {
     const g = loopGuards(ctx, 1);
     if (g) return g;
     if (ctx.runs.every((r) => !r.sensorReads.CountDrones))
-      return fail('לא קראת את `Sensor.CountDrones()`. אתה יורה בעיניים עצומות — ומספר הרחפנים משתנה כל פעם!', 0);
+      return fail('לא קראת את `Sensor.CountDrones()`. אתה יורה בעיניים עצומות, ומספר הרחפנים משתנה כל פעם!', 0);
     if (looksHardcoded(ctx, 'actions'))
       return fail('ירית אותו מספר פולסים בכל הפסים. כנראה כתבת מספר קבוע בלולאה במקום להשתמש ב-`count`.', 1);
     for (let i = 0; i < COUNTS.length; i++) {
@@ -131,6 +147,90 @@ const L3_2: SubLevel = {
 };
 
 // ---------------------------------------------------------
+type Thing = 'SCOUT' | 'DECOY';
+const DECOY_BELTS: Thing[][] = [
+  ['SCOUT', 'DECOY', 'SCOUT', 'SCOUT'],
+  ['DECOY', 'DECOY', 'SCOUT'],
+  ['SCOUT', 'DECOY', 'DECOY', 'SCOUT', 'DECOY', 'SCOUT'],
+];
+const decoysIn = (b: Thing[]) => b.filter((d) => d === 'DECOY').length;
+const realIn = (b: Thing[]) => b.length - decoysIn(b);
+
+const L3_3: SubLevel = {
+  id: '3-3',
+  tier: 'practice',
+  title: 'רחפני הטעיה',
+  brief:
+    'AURA למדה לרמות: בין הרחפנים האמיתיים היא מפזרת **הולוגרמות**, רחפנים מזויפים ושקופים שמהבהבים. ' +
+    'עבור על הפסים ב"סיור" ותסתכל טוב על מה שעליהם.',
+  rules: [
+    '🛸 רחפן אמיתי (`"SCOUT"`) נופל מפולס אחד',
+    '👻 הולוגרמה (`"DECOY"`): פולס עובר דרכה ומתבזבז. היא לא מסוכנת, אז פשוט לא יורים בה',
+    'מרכז הבקרה רוצה לדעת כמה הולוגרמות AURA הציבה. בסוף, שורה אחת בצורה `DECOYS: 2`',
+    'בכל פס הסדר והכמות שונים',
+    RULE_TIRED,
+  ],
+  tools: [
+    '`Sensor.CountDrones()` מחזיר כמה עצמים יש על הפס, **כולל** הולוגרמות',
+    '`Sensor.NextDrone()` מחזיר את סוג העצם הבא על הפס: `"SCOUT"` או `"DECOY"`. כל קריאה מתקדמת לעצם הבא',
+    TOOL_EMP + ' (שאינו הולוגרמה)',
+    '`for`, `if`, ומשתנה `int` שאפשר להגדיל ב-1 עם `++`',
+  ],
+  objectives: ['השבת כל רחפן אמיתי, בלי לבזבז אף פולס על הולוגרמה', 'דווח כמה הולוגרמות היו על הפס'],
+  starterCode: main('int count = Sensor.CountDrones();\n\n'),
+  scene: 'assembly',
+  api: { Robot: ['EMP'], Sensor: { CountDrones: 'int', NextDrone: 'string' } },
+  tests: DECOY_BELTS.map((b, i) => ({
+    label: `פס ${i + 1}: ${b.length} עצמים`,
+    sensors: { CountDrones: b.length, NextDrone: b },
+    expect: { actions: times(realIn(b), 'EMP'), outputs: [`DECOYS: ${decoysIn(b)}`] },
+    scene: { drones: b },
+  })),
+  validate: (ctx) => {
+    const g = loopGuards(ctx, 1);
+    if (g) return g;
+    if (ctx.runs.every((r) => !r.sensorReads.NextDrone))
+      return fail('לא בדקת מה יש על הפס! בלי `Sensor.NextDrone()` אין דרך לדעת מה אמיתי ומה הולוגרמה.', 0);
+    for (let i = 0; i < DECOY_BELTS.length; i++) {
+      const belt = DECOY_BELTS[i];
+      const run = ctx.runs[i];
+      const label = ctx.tests[i].label;
+      if ((run.sensorReads.NextDrone ?? 0) === 1)
+        return fail(`${label}: קראת את \`Sensor.NextDrone()\` רק פעם אחת. כל קריאה מחזירה את העצם **הבא**, אז צריך לקרוא בתוך הלולאה, פעם אחת לכל עצם.`, i);
+      const n = empCount(ctx, i);
+      if (n === belt.length)
+        return fail(`${label}: ירית ${n} פולסים, גם על ההולוגרמות! לפני שיורים, בדוק עם \`if\` מה הסוג של העצם.`, i, { mood: 'laughing' });
+      if (n !== realIn(belt)) return fail(`${label}: ירית ${n} פולסים, אבל היו ${realIn(belt)} רחפנים אמיתיים על הפס.`, i);
+      if (run.outputs.length === 0)
+        return fail(`${label}: הרחפנים נפלו, אבל איפה הדוח? בסוף צריך להדפיס \`DECOYS: \` ואת המספר.`, i);
+      if (run.outputs.length > 1)
+        return fail(`${label}: הדפסת ${run.outputs.length} שורות. הדוח הוא שורה **אחת**, אחרי שהלולאה נגמרה, לא בתוכה.`, i);
+      const d = compareOutputs(run, ctx.tests[i].expect!.outputs!);
+      if (d) return fail(`${label}: ${d}`, i);
+    }
+    return defaultValidate(ctx);
+  },
+  hints: [
+    { text: 'לולאה שעוברת על כל העצמים (`count` פעמים). בכל סיבוב קוראים את העצם הבא ומחליטים: אמיתי? יורים. הולוגרמה? מגדילים מונה. אחרי הלולאה מדפיסים את המונה.' },
+    {
+      text: 'השלד:',
+      code: 'int decoys = 0;\nfor (int i = 0; i < count; i++)\n{\n    string drone = ______________;\n    if (drone == "_____")\n    {\n        decoys++;\n    }\n    else\n    {\n        Robot.EMP();\n    }\n}\nConsole.WriteLine("DECOYS: " + ______);',
+    },
+    {
+      text: 'הפתרון המלא:',
+      code: 'int count = Sensor.CountDrones();\nint decoys = 0;\nfor (int i = 0; i < count; i++)\n{\n    string drone = Sensor.NextDrone();\n    if (drone == "DECOY")\n    {\n        decoys++;\n    }\n    else\n    {\n        Robot.EMP();\n    }\n}\nConsole.WriteLine("DECOYS: " + decoys);',
+    },
+  ],
+  aura: {
+    intro: 'ההולוגרמות שלי כל כך מציאותיות שאפילו אני לפעמים יורה בהן. אתה בטוח תבזבז את כל הסוללה.',
+    win: 'הוא... התעלם מההולוגרמות?! וגם ספר אותן?! זה כמו להגיד לי "ראיתי מה עשית". אני שונאת שרואים מה עשיתי.',
+  },
+  solution: main(
+    'int count = Sensor.CountDrones();\nint decoys = 0;\nfor (int i = 0; i < count; i++)\n{\n    string drone = Sensor.NextDrone();\n    if (drone == "DECOY")\n    {\n        decoys++;\n    }\n    else\n    {\n        Robot.EMP();\n    }\n}\nConsole.WriteLine("DECOYS: " + decoys);',
+  ),
+};
+
+// ---------------------------------------------------------
 type Drone = 'SCOUT' | 'TANK';
 const HEB: Record<Drone, string> = { SCOUT: 'סייר', TANK: 'טנק' };
 const BELTS: Drone[][] = [
@@ -141,23 +241,29 @@ const BELTS: Drone[][] = [
 ];
 const beltActions = (b: Drone[]) => [...b.flatMap((d) => (d === 'TANK' ? times(3, 'EMP') : ['EMP'])), 'Dash'];
 
-const L3_3: SubLevel = {
-  id: '3-3',
+const L3_4: SubLevel = {
+  id: '3-4',
   tier: 'boss',
   title: 'בוס: פס הייצור הראשי',
   brief:
-    'פס הייצור הראשי של AURA. אף אחד לא יודע כמה רחפנים יגיעו — הם פשוט ממשיכים לבוא.\n' +
-    '`Sensor.NextDrone()` מחזיר את סוג הרחפן הבא על הפס: `"SCOUT"` (סייר), `"TANK"` (טנק משוריין), או `"EMPTY"` כשהפס התרוקן.\n' +
-    '🛸 סייר — פולס אחד. 🛡️ טנק — **3 פולסים** (השתמש בלולאת `for`!).\n' +
-    'כשהפס ריק — ברח עם `Robot.Dash();`. מכיוון שלא ידוע מראש כמה רחפנים יש, זה בדיוק התפקיד של `while`.\n' +
-    'זהירות: לפעמים הפס **ריק כבר מההתחלה**.',
-  objectives: [
-    'קרא רחפן עם `Sensor.NextDrone()`',
-    'כל עוד הוא לא `"EMPTY"`: טנק → 3 פולסים, אחרת → פולס 1, ואז קרא את הבא',
-    'בסוף — `Robot.Dash();`',
-    'בלי העתק-הדבק: לכל היותר 2 שורות `Robot.EMP();` בקוד',
+    'פס הייצור הראשי של AURA. אף אחד לא יודע כמה רחפנים יגיעו. הם פשוט ממשיכים לבוא עד שהפס מתרוקן. ' +
+    'ב"סיור" תראה שיש כאן גם רחפנים **משוריינים**.',
+  rules: [
+    '🛸 סייר נופל מפולס אחד',
+    '🛡️ טנק משוריין: צריך **3** פולסים כדי להפיל אותו (רואים את פסי השריון מעליו)',
+    'כשהפס ריק החיישן מחזיר `"EMPTY"`, ואז צריך לברוח מהמפעל. לפעמים הפס ריק כבר מההתחלה',
+    'מי שבורח כשעוד יש רחפן פעיל על הפס מתפוצץ',
+    'הרובוט מתעייף מהעתק-הדבק: מותר לכל היותר 2 שורות `Robot.EMP();` בקוד',
   ],
-  starterCode: main('string drone = Sensor.NextDrone();\n\n// Destroy drones until the belt is "EMPTY", then escape\n'),
+  tools: [
+    '`Sensor.NextDrone()` מחזיר את סוג הרחפן הבא: `"SCOUT"`, `"TANK"` או `"EMPTY"`. כל קריאה מתקדמת לבא',
+    TOOL_EMP,
+    '`Robot.Dash();` היא בריחה מהמפעל',
+    '`while (תנאי) { ... }` חוזר כל עוד התנאי נכון. מתאים כשלא יודעים מראש כמה פעמים',
+    '`for` ו-`if`',
+  ],
+  objectives: ['נקה כל פס וברח, בכל ארבעת התרחישים'],
+  starterCode: main('string drone = Sensor.NextDrone();\n\n'),
   scene: 'assembly',
   sceneConfig: { boss: true },
   api: { Robot: ['EMP', 'Dash'], Sensor: { NextDrone: 'string' } },
@@ -171,28 +277,28 @@ const L3_3: SubLevel = {
     const g = loopGuards(ctx, 2);
     if (g) return g;
     if (ctx.runs.every((r) => !r.actions.some((a) => a.name === 'Dash')))
-      return fail('השמדת רחפנים — יפה — אבל שכחת לברוח! בלי `Robot.Dash();` בסוף, הרובוט נשאר לחגוג עד שהמשמר שלי מגיע.', 0);
+      return fail('השמדת רחפנים, יפה, אבל שכחת לברוח! בלי `Robot.Dash();` בסוף, הרובוט נשאר לחגוג עד שהמשמר שלי מגיע.', 0);
     for (let i = 0; i < BELTS.length; i++) {
       const got = ctx.runs[i].actions.map((a) => a.name);
       const exp = beltActions(BELTS[i]);
       if (got.join() === exp.join()) continue;
       const label = ctx.tests[i].label;
       if (BELTS[i].length === 0 && got[0] === 'EMP')
-        return fail(`${label}: הפס היה ריק מההתחלה, ובכל זאת ירית! צריך לבדוק את התנאי **לפני** שיורים — בדיוק מה ש-\`while\` עושה.`, i);
+        return fail(`${label}: הפס היה ריק מההתחלה, ובכל זאת ירית! צריך לבדוק את התנאי **לפני** שיורים, וזה בדיוק מה ש-\`while\` עושה.`, i);
       const n = got.filter((a) => a === 'EMP').length;
       const e = exp.filter((a) => a === 'EMP').length;
       const tanks = BELTS[i].filter((d) => d === 'TANK').length;
-      if (tanks && n === BELTS[i].length) return fail(`${label}: ירית פולס אחד לכל רחפן, אבל לטנקים יש שריון — כל טנק צריך **3** פולסים.`, i);
+      if (tanks && n === BELTS[i].length) return fail(`${label}: ירית פולס אחד לכל רחפן, אבל לטנקים יש שריון. כל טנק צריך **3** פולסים.`, i);
       if (n > e * 2 || ctx.runs[i].sensorReads.NextDrone === 1)
         return fail(`${label}: קראת את \`Sensor.NextDrone()\` רק פעם אחת, אז הלולאה חשבה שזה תמיד אותו רחפן. זכור לקרוא את הרחפן **הבא** בסוף כל סיבוב.`, i);
-      if (got[got.length - 1] !== 'Dash') return fail(`${label}: \`Robot.Dash();\` צריך לבוא בסוף, **אחרי** הלולאה — לא בתוכה.`, i);
+      if (got[got.length - 1] !== 'Dash') return fail(`${label}: \`Robot.Dash();\` צריך לבוא בסוף, **אחרי** הלולאה ולא בתוכה.`, i);
       return fail(`${label}: ${countMsg(n, e)}`, i);
     }
     return defaultValidate(ctx);
   },
   hints: [
     {
-      text: 'התבנית: קוראים רחפן לפני הלולאה. `while (drone != "EMPTY")` — בתוך הלולאה מטפלים ברחפן, ובסוף הסיבוב קוראים את הבא. לטנק — לולאת `for` קטנה בתוך ה-`while`.',
+      text: 'התבנית: קוראים רחפן לפני הלולאה. `while (drone != "EMPTY")`: בתוך הלולאה מטפלים ברחפן, ובסוף הסיבוב קוראים את הבא. לטנק אפשר לולאת `for` קטנה בתוך ה-`while`.',
     },
     {
       text: 'השלד:',
@@ -212,4 +318,4 @@ const L3_3: SubLevel = {
   ),
 };
 
-export const STAGE3_LEVELS: SubLevel[] = [L3_1, L3_2, L3_3];
+export const STAGE3_LEVELS: SubLevel[] = [L3_1, L3_2, L3_3, L3_4];

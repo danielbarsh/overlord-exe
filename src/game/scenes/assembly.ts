@@ -8,7 +8,8 @@ import { FLOOR, ROBOT_Y, START_X, W, roundRect } from '../engine/constants';
 import { ease, type Engine } from '../engine/Engine';
 import { failIndex, type SceneModule } from './types';
 
-type DroneType = 'SCOUT' | 'TANK';
+/** DECOY = a hologram: EMP passes straight through it, and it never blocks the exit */
+type DroneType = 'SCOUT' | 'TANK' | 'DECOY';
 interface Drone {
   type: DroneType;
   hp: number;
@@ -42,6 +43,7 @@ const MAX_ANIMATED = 26;
 
 const st = (e: Engine) => e.s as FoundryState;
 const slotX = (i: number) => SLOT_X0 + i * SLOT_W;
+const isReal = (d: Drone) => d.alive && d.type !== 'DECOY';
 
 function makeDrones(types: DroneType[], offscreen: boolean): Drone[] {
   return types.map((type, i) => ({
@@ -84,6 +86,10 @@ export const assemblyScene: SceneModule = {
     e.eyeColor = '#a6ff3a';
   },
 
+  preview(e, level, i) {
+    st(e).drones = makeDrones((level.tests[i]?.scene?.drones as DroneType[] | undefined) ?? [], false);
+  },
+
   update(e, dt) {
     const s = st(e);
     s.belt = (s.belt + s.beltSpeed * dt) % 40;
@@ -115,7 +121,7 @@ export const assemblyScene: SceneModule = {
     ctx.fillStyle = '#a6ff3a';
     ctx.fillText(s.boss ? 'MAIN ASSEMBLY LINE' : 'DRONE FOUNDRY', 574, 230);
     ctx.font = '600 13px "JetBrains Mono", monospace';
-    const live = s.drones.filter((d) => d.alive).length;
+    const live = s.drones.filter(isReal).length;
     ctx.fillStyle = live ? '#ff3b5c' : '#a6ff3a';
     ctx.fillText(`ACTIVE: ${live}`, 574, 252);
     ctx.fillStyle = '#9fe8ff';
@@ -268,7 +274,8 @@ export const assemblyScene: SceneModule = {
         const name = ev.action.name;
         if (name === 'EMP') {
           shots++;
-          const target = s.drones.find((d) => d.alive);
+          const target = s.drones.find(isReal);
+          const ghost = target ? undefined : s.drones.find((d) => d.alive && d.type === 'DECOY');
           if (animated >= MAX_ANIMATED) {
             // fast-forward the rest without animation
             if (target) hit(e, target, false);
@@ -288,8 +295,9 @@ export const assemblyScene: SceneModule = {
           await e.animate(90 * scale, (k) => (r.charge = k), ease.in);
           sfx.pulse();
           r.charge = 0;
-          const tx = target ? target.x : HATCH_X + 40;
-          const ty = target ? target.y : DRONE_Y;
+          const aim = target ?? ghost;
+          const tx = aim ? aim.x : HATCH_X + 40;
+          const ty = aim ? aim.y : DRONE_Y;
           const p: Pulse = { x0: r.x + 30, y0: r.y, x1: tx, y1: ty, k: 0 };
           s.pulses.push(p);
           r.x -= 6; // recoil
@@ -299,6 +307,9 @@ export const assemblyScene: SceneModule = {
           if (target) {
             hit(e, target, true);
             if (!target.alive) await advanceBelt(e, fast ? 140 : 240);
+          } else if (ghost) {
+            ghost.flash = 1;
+            e.say('הולוגרמה! הפולס עבר דרכה', '#ffb020', ghost.x, DRONE_Y - 60);
           } else {
             e.sparks(HATCH_X + 10, DRONE_Y, 12, '#9ff6ff', 200);
             e.say('פספוס! אין רחפן', '#ffb020', HATCH_X - 60, DRONE_Y - 50);
@@ -312,9 +323,9 @@ export const assemblyScene: SceneModule = {
           r.eyes = 'happy';
           sfx.dash();
           r.trail = true;
-          const blocked = s.drones.some((d) => d.alive);
+          const blocked = s.drones.some(isReal);
           if (blocked) {
-            const first = s.drones.find((d) => d.alive)!;
+            const first = s.drones.find(isReal)!;
             await e.moveRobot(first.x - 50, 380, ease.in);
             r.trail = false;
             e.say('בום!', '#ff3b5c');
@@ -360,7 +371,7 @@ export const assemblyScene: SceneModule = {
           r.eyes = 'normal';
           await e.teleportRobot(START_X);
         } else if (!exploded) {
-          const live = s.drones.filter((d) => d.alive && d.x < HATCH_X);
+          const live = s.drones.filter((d) => isReal(d) && d.x < HATCH_X);
           if (live.length) {
             // surviving drones swarm the robot
             e.say('הם עדיין פעילים!', '#ff3b5c', 600, 330);
@@ -436,6 +447,7 @@ function hit(e: Engine, d: Drone, fx: boolean) {
 }
 
 function drawDrone(ctx: CanvasRenderingContext2D, d: Drone, t: number) {
+  if (d.type === 'DECOY') return drawDecoy(ctx, d, t);
   const tank = d.type === 'TANK';
   const sc = tank ? 1.3 : 1;
   const bob = d.alive ? Math.sin(t * 5 + d.x * 0.05) * 3 : 0;
@@ -493,4 +505,34 @@ function drawDrone(ctx: CanvasRenderingContext2D, d: Drone, t: number) {
       ctx.fillRect(d.x - 14 + k * 10, d.y - 34, 8, 4);
     }
   }
+}
+
+/** holographic decoy — flickering, see-through, no armor */
+function drawDecoy(ctx: CanvasRenderingContext2D, d: Drone, t: number) {
+  const bob = Math.sin(t * 5 + d.x * 0.05) * 3;
+  const flick = 0.35 + 0.2 * Math.sin(t * 23 + d.x) + (Math.random() < 0.05 ? -0.25 : 0);
+  ctx.save();
+  ctx.globalAlpha = Math.max(0.1, flick) * d.alpha;
+  ctx.translate(d.x, d.y + bob);
+  ctx.strokeStyle = '#7ff3ff';
+  ctx.shadowColor = '#22e4ff';
+  ctx.shadowBlur = 12;
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([4, 3]);
+  roundRect(ctx, -15, -6, 30, 18, 7);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(-20, -8);
+  ctx.lineTo(20, -8);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  // scanlines
+  ctx.fillStyle = 'rgba(127,243,255,.35)';
+  for (let y = -5; y < 12; y += 4) ctx.fillRect(-14, y + ((t * 30) % 4), 28, 1);
+  if (d.flash > 0) {
+    ctx.globalAlpha = d.flash;
+    ctx.translate((Math.random() - 0.5) * 8, 0);
+    ctx.strokeRect(-16, -8, 32, 22);
+  }
+  ctx.restore();
 }

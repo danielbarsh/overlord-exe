@@ -56,6 +56,11 @@ export interface SubLevel {
   title: string;
   /** Hebrew mission brief. Supports `inline code` and **bold**. */
   brief: string;
+  /** field manual: how the world behaves (what each hazard does). The student decides what to do about it. */
+  rules?: string[];
+  /** commands & sensors available in this level, with what they do (not when to use them) */
+  tools?: string[];
+  /** goals, not steps */
   objectives: string[];
   starterCode: string;
   scene: SceneId;

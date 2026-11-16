@@ -81,7 +81,21 @@ export const blueprintScene: SceneModule = {
       bots: [], title: 'BLUEPRINT: RebelBot', lines: ['// waiting for new...'], scanX: BAY_X0 - 30, scanA: 0,
       scanColor: '#ff3b5c', gate: 0, boss: !!level.sceneConfig?.boss, bayCount: 0,
     } satisfies BpState;
+    // the first order is on the board from the start — the student reads it off the screen
+    const order = level.tests[0]?.scene?.order as string[] | undefined;
+    if (order) {
+      e.s.title = 'ORDER BOARD';
+      e.s.lines = order;
+    }
     e.eyeColor = '#ffb020';
+  },
+
+  preview(e, level, i) {
+    const s = st(e);
+    const order = level.tests[i]?.scene?.order as string[] | undefined;
+    if (!order) return;
+    s.title = 'ORDER BOARD';
+    s.lines = order;
   },
 
   update(e, dt) {
