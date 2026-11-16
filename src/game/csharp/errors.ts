@@ -36,7 +36,10 @@ export type RoastKey =
   | 'nullRef'
   | 'indexOutOfRange'
   | 'outsideMain'
-  | 'emptyIf';
+  | 'emptyIf'
+  | 'hidesMethod'
+  | 'notVirtual'
+  | 'needsBaseCtor';
 
 export interface Diagnostic {
   /** C# compiler code, e.g. CS1002 */

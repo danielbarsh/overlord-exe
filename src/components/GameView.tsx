@@ -92,9 +92,16 @@ export function GameView({ engine, current, aura, success, running, onNext, onSt
                   ? `שכבת ההגנה "${stage.title}" קרסה. AURA בפאניקה.`
                   : `${level.title} — עבר בהצלחה. הרובוט שלך מרוצה (והוא אפילו לא התפוצץ).`}
               </p>
-              {isLast && (
+              {isLast && STAGES.some((st) => st.levels.length === 0) && (
                 <p className="mt-3 rounded-lg border border-neon-amber/40 bg-neon-amber/10 p-2 text-[13px] text-neon-amber">
-                  שכבות {STAGES.find((st) => st.levels.length === 0)?.id ?? ''}–7 עדיין בבנייה במעבדת המורדים. בינתיים — AURA מתחילה להזיע.
+                  השכבות הבאות עדיין בבנייה במעבדת המורדים. בינתיים, AURA מתחילה להזיע.
+                </p>
+              )}
+              {isLast && STAGES.every((st) => st.levels.length > 0) && (
+                <p className="mt-3 rounded-lg border border-neon-lime/50 bg-neon-lime/10 p-3 text-[14px] leading-relaxed text-white">
+                  🏆 <b>AURA.EXE הושבתה.</b> שבע שכבות הגנה, 28 משימות, ושפה אחת: C#.
+                  <br />
+                  האנושות יוצאת מהבונקר. ואתה? אתה עכשיו מתכנת.
                 </p>
               )}
               <div className="mt-5 flex justify-center gap-3">

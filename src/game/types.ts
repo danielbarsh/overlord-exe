@@ -4,7 +4,7 @@ import type { GameApi, JsVal, RunResult } from './csharp';
 export type AuraMood = 'neutral' | 'smug' | 'laughing' | 'shocked' | 'glitch' | 'angry' | 'panic' | 'thinking';
 
 /** Scenes are registered in game/scenes/index.ts — add new ids there for stages 3–7. */
-export type SceneId = 'gate' | 'lasers' | 'assembly' | 'blueprint' | (string & {});
+export type SceneId = 'gate' | 'lasers' | 'assembly' | 'blueprint' | 'firewall' | 'chasm' | 'core' | (string & {});
 
 export type Tier = 'warmup' | 'practice' | 'boss';
 
@@ -20,6 +20,11 @@ export interface TestCase {
     outputs?: string[];
     actions?: string[];
   };
+  /**
+   * AURA's attack code: a Main() body run against the student's classes instead of the student's Main.
+   * Shown in the recon preview. If it fails to compile, the run comes back with `blocked`.
+   */
+  harness?: string;
   /** free-form data for the scene (laser color, enemy count, ...) */
   scene?: Record<string, unknown>;
 }

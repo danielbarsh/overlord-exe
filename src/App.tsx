@@ -202,6 +202,11 @@ export default function App() {
           const r = runs[i];
           if (lvl.tests.length > 1) log('test', `── ${t.label} ──`);
           t.input?.forEach((x) => log('in', `< ${x}`));
+          if (t.harness) {
+            log('dim', '  // AURA runs her own Main against your classes:');
+            t.harness.split('\n').forEach((l) => log('in', `  AURA> ${l}`));
+          }
+          if (r.blocked) log('warn', `  🛡 AURA's code failed to compile: ${r.blocked.code}: ${r.blocked.message}`);
           if (t.sensors) log('dim', `  sensors: ${Object.entries(t.sensors).map(([k, v]) => `${k}()=${JSON.stringify(v)}`).join(', ')}`);
           for (const ev of r.events) {
             if (ev.kind === 'out') log('out', ev.text === '' ? ' ' : ev.text);

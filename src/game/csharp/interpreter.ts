@@ -64,6 +64,8 @@ export interface RunResult {
   vars: Record<string, { type: string; value: JsVal }>;
   objects: ObjSnapshot[];
   error?: RuntimeErr;
+  /** harness tests only: AURA's code was rejected by the compiler (e.g. private access) and never ran */
+  blocked?: { code: string; message: string; roast: string; line: number };
   steps: number;
   inputReads: number;
   sensorReads: Record<string, number>;
@@ -255,6 +257,32 @@ export class Interpreter {
       cur = info.base;
     }
     return undefined;
+  }
+
+  /**
+   * C# instance dispatch: start from the method the compiler bound to (the static type's).
+   * Only an `override` chain replaces it; a same-name method without `override` merely hides it.
+   */
+  private dispatch(runtimeCls: string, name: string, staticOwner?: string): { m: MethodDecl; owner: string } | undefined {
+    const bound = staticOwner ? this.findMethod(staticOwner, name) : undefined;
+    if (!bound) return this.findMethod(runtimeCls, name);
+    if (!bound.m.isVirtual && !bound.m.isOverride) return bound;
+    // collect the runtime chain down from the bound owner; take the most-derived unbroken override
+    const chain: string[] = [];
+    let cur: string | undefined = runtimeCls;
+    while (cur && cur !== bound.owner) {
+      chain.unshift(cur);
+      cur = this.chk.classes.get(cur)?.base;
+    }
+    if (cur !== bound.owner) return this.findMethod(runtimeCls, name);
+    let best = bound;
+    for (const c of chain) {
+      const m = this.chk.classes.get(c)!.methods.get(name);
+      if (!m) continue;
+      if (m.isOverride) best = { m, owner: c };
+      else break; // hidden here: overrides below would belong to a new slot
+    }
+    return best;
   }
 
   private findStaticOwner(cls: string, name: string): Map<string, Val> | undefined {
@@ -632,7 +660,7 @@ export class Interpreter {
     if (name === 'ToString' && o.t !== 'obj') return S(this.str(o, frame));
     if (o.t === 'string') return this.stringCall(o.v, name, args, frame);
     if (o.t === 'obj') {
-      const m = this.findMethod(o.cls, name);
+      const m = this.dispatch(o.cls, name, (e as { owner?: string }).owner);
       if (!m) return name === 'ToString' ? S(o.cls) : NULL;
       return this.invoke(m.m, this.chk.classes.get(m.owner)!, o, args, e.line);
     }

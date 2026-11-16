@@ -21,6 +21,9 @@
 import { fail, main } from './levels/helpers';
 import { STAGE3_LEVELS } from './levels/stage3';
 import { STAGE4_LEVELS } from './levels/stage4';
+import { STAGE5_LEVELS } from './levels/stage5';
+import { STAGE6_LEVELS } from './levels/stage6';
+import { STAGE7_LEVELS } from './levels/stage7';
 import { compareOutputs, defaultValidate, looksHardcoded, runtimeVerdict } from './validate';
 import type { Stage, SubLevel, ValidateCtx, Verdict } from './types';
 
@@ -531,16 +534,16 @@ export const STAGES: Stage[] = [
     description: 'יצירת בוטים מורדים מיוחדים מתוך שרטוט.', color: '#ffb020', levels: STAGE4_LEVELS,
   },
   {
-    id: 5, title: 'כימוס', topic: 'private · public · methods', codename: 'FIREWALL',
-    description: 'הגנה על נתוני הבוטים מפני מתקפות ההזרקה של AURA.', color: '#b17dff', levels: [],
+    id: 5, title: 'כימוס', topic: 'private · public · methods · properties', codename: 'FIREWALL',
+    description: 'הגנה על נתוני הבוטים מפני מתקפות ההזרקה של AURA.', color: '#b17dff', levels: STAGE5_LEVELS,
   },
   {
-    id: 6, title: 'ירושה', topic: 'class JetBot : BaseBot', codename: 'REACTOR CHASM',
-    description: 'יצירת תת-מחלקה מעופפת JetBot כדי לחצות את תהום הכור.', color: '#ff2bd6', levels: [],
+    id: 6, title: 'ירושה', topic: ': BaseBot · base(...) · virtual / override', codename: 'REACTOR CHASM',
+    description: 'יצירת תת-מחלקה מעופפת JetBot כדי לחצות את תהום הכור.', color: '#ff2bd6', levels: STAGE6_LEVELS,
   },
   {
     id: 7, title: 'הבוס הסופי', topic: 'ירושה + לולאות + תנאים', codename: 'AURA CORE',
-    description: 'כל מה שלמדת, נגד ליבת AURA.', color: '#ffffff', levels: [],
+    description: 'כל מה שלמדת, נגד ליבת AURA.', color: '#ffffff', levels: STAGE7_LEVELS,
   },
 ];
 

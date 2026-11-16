@@ -137,13 +137,27 @@ class Checker {
           cur = this.classes.get(cur)?.base;
         }
       }
+      // C#: a subclass must chain to a base constructor the base actually has (CS7036)
+      if (info.base) {
+        const baseDecl = this.classes.get(info.base)!.decl;
+        const baseNeedsArgs = baseDecl.ctors.length > 0 && !baseDecl.ctors.some((c) => c.params.length === 0);
+        if (baseNeedsArgs) {
+          const msg = `There is no argument given that corresponds to the required parameters of '${info.base}' constructor`;
+          if (info.decl.ctors.length === 0) throw cerr('CS7036', msg, info.decl.line, 1, 'needsBaseCtor', { name: info.name, base: info.base });
+          for (const c of info.decl.ctors) if (!c.baseArgs) throw cerr('CS7036', msg, c.line, 1, 'needsBaseCtor', { name: info.name, base: info.base });
+        }
+      }
       for (const f of info.fields.values()) this.checkTypeName(f.type, f.line);
       for (const m of info.methods.values()) {
         if (m.ret !== 'void') this.checkTypeName(m.ret, m.line);
         m.params.forEach((p) => this.checkTypeName(p.type, m.line));
+        const baseM = info.base ? this.findMethod(info.base, m.name) : undefined;
         if (m.isOverride) {
-          const baseM = info.base ? this.findMethod(info.base, m.name) : undefined;
           if (!baseM) throw cerr('CS0115', `'${info.name}.${m.name}()': no suitable method found to override`, m.line, 1, 'unknownMember', { name: m.name });
+          if (!baseM.m.isVirtual && !baseM.m.isOverride)
+            throw cerr('CS0506', `'${info.name}.${m.name}()': cannot override inherited member '${baseM.owner}.${m.name}()' because it is not marked virtual or override`, m.line, 1, 'notVirtual', { name: m.name, owner: baseM.owner });
+        } else if (baseM && !m.isStatic && (baseM.m.isVirtual || baseM.m.isOverride)) {
+          this.warnings.push({ code: 'CS0114', message: `'${info.name}.${m.name}()' hides inherited member '${baseM.owner}.${m.name}()'. To make the current member override that implementation, add the override keyword.`, line: m.line, col: 1, roast: 'hidesMethod', extra: { name: m.name, owner: baseM.owner } });
         }
       }
     }
@@ -719,6 +733,8 @@ class Checker {
         throw cerr('CS1955', `Non-invocable member '${c.name}' cannot be used like a method`, c.line, c.col, 'missingParens', { name: c.name, notMethod: '1' });
       }
       this.countCall(`${c.obj.k === 'name' ? c.obj.name : '?'}.${c.name}`);
+      // remember the static owner so the interpreter can dispatch like C# (virtual/override vs hiding)
+      if (r.user) (e as { owner?: string }).owner = r.owner;
       if (r.user) {
         this.checkArgs(r.user.params.map((p) => p.type), e.args, scope, r.user.params.length, r.user.params.length, c.name, e.line);
         return r.user.ret;
