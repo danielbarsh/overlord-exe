@@ -12,9 +12,6 @@ const names = (ctx: ValidateCtx, i: number) => ctx.runs[i].actions.map((a) => a.
 const launched = (ctx: ValidateCtx, i: number): (ObjSnapshot | null)[] =>
   ctx.runs[i].actions.filter((a) => a.name === 'Launch').map((a) => a.objs[0] ?? null);
 
-const RULE_GAP = '🕳️ **תהום** (GAP): אי אפשר ללכת או לטפס. רק טיסה עוברת';
-const RULE_WALL = '🧱 **קיר**: מגיע עד התקרה. אי אפשר לעבור דרכו או לטוס מעליו, רק לטפס';
-const RULE_BRIDGE = '🌉 **גשר**: פשוט הולכים';
 
 /** Shared: class X exists, inherits from Base, doesn't re-declare inherited fields. */
 function inherits(ctx: ValidateCtx, cls: string, base: string): Verdict | null {
@@ -56,19 +53,11 @@ const L6_1: SubLevel = {
   tier: 'warmup',
   title: 'תת-מחלקה ראשונה',
   brief:
-    'תהום הכור חוסמת את הדרך. ה-`BaseBot` של המורדים יודע רק ללכת, וזה לא יספיק. ' +
-    'במקום להעתיק את כל השרטוט שלו ולהוסיף לו מנוע, נבנה שרטוט **שיורש** ממנו. בדרך יש תהום, ושלט ההאנגר מבקש JetBot בשם Falcon.',
-  rules: [RULE_GAP, 'למטוס (`JetBot`) יש **כל** מה שיש ל-`BaseBot`, ובנוסף יכולת טיסה', 'ההאנגר משגר רק בוט שנקרא בשם שעל השלט'],
-  tools: [
-    '`class JetBot : BaseBot { ... }` יוצר מחלקה שיורשת את כל השדות והשיטות של `BaseBot`',
-    '`Robot.Launch(bot);` מעלה את הבוט למסלול',
-    '`Robot.Walk();` / `Robot.Fly();` חוצים את הקטע הבא במסלול (מתוך שיטות של הבוט)',
-  ],
+    "תהום הכור חוסמת את הדרך, וה-`BaseBot` של המורדים יודע רק ללכת.\nבמקום להעתיק את כל השרטוט שלו, כתוב מחלקה **שיורשת** ממנו: `class JetBot : BaseBot`. ל-JetBot יש אוטומטית כל מה שיש ל-BaseBot, כולל השדה `name`. בתוכה כותבים רק את מה שחדש: שיטה `Fly()` שקוראת ל-`Robot.Fly();`.\nבנה JetBot בשם `Falcon`, שגר אותו עם `Robot.Launch(jet);` וטוס מעל התהום.",
   objectives: [
-    'מתחת ל-`BaseBot` כתוב: `class JetBot : BaseBot { ... }`',
-    'בתוך `JetBot` כתוב שיטה: `public void Fly() { Robot.Fly(); }`',
-    'ב-`Main`: `JetBot jet = new JetBot();` ואז `jet.name = "Falcon";` (השדה `name` עבר בירושה)',
-    'שגר וטוס: `Robot.Launch(jet);` ואז `jet.Fly();`',
+    "כתוב `class JetBot : BaseBot` עם שיטה `Fly()`",
+    "צור JetBot בשם `Falcon` ושגר אותו",
+    "טוס: `jet.Fly();`",
   ],
   starterCode: withClasses(BASE_1 + '\n\n// TODO: class JetBot', '// Build the bot on the hangar sign, launch it, cross\n'),
   scene: 'chasm',
@@ -136,22 +125,11 @@ const L6_2: SubLevel = {
   tier: 'practice',
   title: 'בנאי הבסיס',
   brief:
-    'ה-`BaseBot` שודרג: עכשיו יש לו **בנאי** שדורש שם ודלק. ההאנגר של המורדים בונה JetBots בעצמו, ' +
-    'ואת הקוד שלו רואים ב"סיור". המשימה שלך היא לגרום לשרטוט של `JetBot` להתאים לקוד הזה.',
-  rules: [
-    'ההאנגר בונה כך: `new JetBot("Falcon")`, כלומר רק עם שם',
-    'כל JetBot יוצא מהמפעל עם מיכל **מלא**: 100 דלק',
-    '`BaseBot` לא מוכן להיבנות בלי שם ודלק. אין לו בנאי ריק',
-    RULE_GAP,
-  ],
-  tools: [
-    '`public JetBot(string name) : base(...)` הוא בנאי שמעביר ערכים לבנאי של ההורה',
-    '`Robot.Launch(bot);`, `Robot.Fly();`',
-  ],
+    "ה-`BaseBot` שודרג: יש לו **בנאי** שדורש שם ודלק, `BaseBot(string name, int fuel)`. ההאנגר של המורדים בונה JetBots בעצמו עם `new JetBot(\"Falcon\")`, כלומר רק עם שם.\nכתוב ל-JetBot בנאי שמקבל שם ומעביר להורה את השם ו-**100** דלק (מיכל מלא): `public JetBot(string name) : base(name, 100)`.",
   objectives: [
-    'בתוך `JetBot` כתוב בנאי: `public JetBot(string name) : base(name, 100) { }`',
-    'הבנאי מעביר להורה את השם ו-100 דלק',
-    'את ה-`Main` לא צריך לשנות: ההאנגר בונה את הבוטים בעצמו',
+    "כתוב בנאי `JetBot(string name)`",
+    "העבר להורה את השם ו-100 דלק עם `: base(...)`",
+    "את ה-Main לא צריך לשנות",
   ],
   starterCode: withClasses(BASE_2 + '\n\n' + JET_2.replace('    public JetBot(string name) : base(name, 100)\n    {\n    }\n\n', '    // TODO: constructor\n\n'), '// The hangar runs its own Main (see recon).\n'),
   scene: 'chasm',
@@ -243,24 +221,10 @@ const L6_3: SubLevel = {
   tier: 'practice',
   title: 'בקר המעבר',
   brief:
-    'בקר המעבר של הכור מחזיק כל בוט כ-`BaseBot` ואומר לו רק דבר אחד: `Cross()`. הוא לא יודע ולא שואל איזה סוג בוט יש לו ביד. ' +
-    'עבור על הקוד שלו ועל המסלולים ב"סיור", ותבנה בוטים שכל אחד מהם יודע לחצות בדרך שלו.',
-  rules: [
-    RULE_GAP,
-    RULE_WALL,
-    RULE_BRIDGE,
-    'הבקר משתמש בשלושה סוגי בוטים: `BaseBot` (הולך), `JetBot` (טס) ו-`ClimbBot` (מטפס)',
-    'כל מה שהבקר עושה הוא לקרוא ל-`Cross()` על משתנה מסוג `BaseBot`',
-  ],
-  tools: [
-    '`virtual` בשיטה של ההורה אומר "ילדים רשאים להחליף אותי"',
-    '`public override void Cross() { ... }` אצל הילד מחליף את הגרסה של ההורה, גם כשמחזיקים את הילד כ-`BaseBot`',
-    '`Robot.Walk();`, `Robot.Fly();`, `Robot.Climb();`',
-  ],
+    "בקר המעבר של הכור מחזיק כל בוט כ-`BaseBot` וקורא לו `Cross()`. ב-BaseBot השיטה `Cross()` מסומנת `virtual` ופשוט הולכת.\nכתוב שתי תת-מחלקות שדורסות אותה עם `override`:\n🛩️ `JetBot` חוצה בטיסה, `Robot.Fly();`, וכך עובר תהום\n🧗 `ClimbBot` חוצה בטיפוס, `Robot.Climb();`, וכך עובר קיר\nבלי `override` הבקר יקבל את הגרסה של BaseBot, והבוט ילך לתוך התהום.",
   objectives: [
-    'כתוב `class JetBot : BaseBot` עם `public override void Cross() { Robot.Fly(); }`',
-    'כתוב `class ClimbBot : BaseBot` עם `public override void Cross() { Robot.Climb(); }`',
-    'המילה `override` חובה. בלעדיה הבקר יקרא לגרסה של `BaseBot`, כלומר להליכה',
+    "`JetBot : BaseBot` עם `override` ל-`Cross()` → Fly",
+    "`ClimbBot : BaseBot` עם `override` ל-`Cross()` → Climb",
   ],
   starterCode: withClasses(BASE_3 + '\n\n// TODO: class JetBot\n\n// TODO: class ClimbBot', '// The crossing controller runs its own Main (see recon).\n'),
   scene: 'chasm',
@@ -380,27 +344,11 @@ const L6_4: SubLevel = {
   tier: 'boss',
   title: 'בוס: חציית הכור',
   brief:
-    'זה הבוס של שכבת התהום: מסלול של תהומות וגשרים, באורכים שמשתנים בכל ניסיון. ה-`Main` כבר כתוב: הוא מחזיק את המטוס כ-`BaseBot` וקורא ל-`Cross(gap)` לכל קטע. ' +
-    'אתה כותב את `JetBot`, והצעדים למטה מסבירים מתי טסים, מתי הולכים ומתי מתדלקים.',
-  rules: [
-    'פער 0 הוא גשר: JetBot הולך עליו בדיוק כמו כל `BaseBot`',
-    'טיסה מעל תהום ברוחב N עולה N × 10 דלק',
-    'JetBot יוצא מההאנגר עם 100 דלק',
-    'אם אין מספיק דלק לתהום הבאה, עוצרים לתדלק (חוזרים ל-100) **לפני** ההמראה. אם יש בדיוק מספיק, זה מספיק',
-    'מי שמתדלק בלי צורך מבזבז זמן, ו-AURA תופסת אותו',
-    'הדלק מוגדר `protected`: רק `BaseBot` והילדים שלו רשאים לגעת בו',
-  ],
-  tools: [
-    '`: base(...)`, `virtual` / `override`',
-    '`base.Cross(gap);` מפעיל את הגרסה של ההורה מתוך הילד',
-    '`Robot.Fly();`, `Robot.Refuel();` (`Robot.Walk();` כבר אצל ההורה)',
-  ],
+    "הבוס של התהום: מסלול של תהומות וגשרים באורכים משתנים. ה-Main כבר כתוב, והוא קורא ל-`jet.Cross(gap)` בכל קטע. אתה כותב את `JetBot`:\n• בנאי שמקבל שם ומעביר 100 דלק דרך `: base(name, 100)`\n• `gap == 0` הוא גשר: הולכים כמו ההורה, עם `base.Cross(gap);`\n• טיסה מעל תהום ברוחב gap עולה `gap * 10` דלק\n• אם אין מספיק דלק, `Robot.Refuel();` (חזרה ל-100) לפני ההמראה. אם יש בדיוק מספיק, זה מספיק.",
   objectives: [
-    'כתוב `class JetBot : BaseBot` עם בנאי `public JetBot(string name) : base(name, 100) { }`',
-    'דרוס את `public override void Cross(int gap)`',
-    'אם `gap == 0`: `base.Cross(gap);` ואז `return;`',
-    'אם `fuel < gap * 10`: `Robot.Refuel();` ואז `fuel = 100;`',
-    'בסוף: `Robot.Fly();` ואז `fuel = fuel - gap * 10;`',
+    "בנאי עם `: base(name, 100)`",
+    "`override` ל-`Cross(int gap)`: גשר → הליכה, תהום → טיסה",
+    "תדלוק רק כשאין מספיק דלק",
   ],
   starterCode: withClasses(BASE_4 + '\n\n// TODO: class JetBot', MAIN_4),
   scene: 'chasm',

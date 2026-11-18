@@ -26,9 +26,6 @@ const orderBoard = (squad: Expected[]) => [
   ...squad.map((b) => Object.values(b).join(' | ')),
 ];
 
-const RULE_NEW = 'בוט חדש נולד ריק: שדה טקסט מתחיל כ-`null` ושדה מספר מתחיל כ-`0`';
-const RULE_SEPARATE =
-  'כל בוט הוא **אובייקט נפרד**. אם שולחים את אותו בוט פעמיים (גם אם שינו לו שדות באמצע), הסורק של AURA תופס';
 
 const show = (v: unknown) => (v === null || v === undefined ? 'null' : typeof v === 'string' ? `"${v}"` : String(v));
 
@@ -100,25 +97,13 @@ const L4_1: SubLevel = {
   tier: 'warmup',
   title: 'השרטוט הראשון',
   brief:
-    'גנבנו מ-AURA **שרטוט** של בוט: המחלקה `RebelBot`, שכבר כתובה למעלה בקוד. ' +
-    'אבל שרטוט לבד לא זז. צריך לבנות ממנו בוט אמיתי. **מה** לבנות? זה כתוב על לוח ההזמנות בזירה.',
-  rules: [
-    'שרטוט (מחלקה) מתאר אילו **שדות** יש לכל בוט. כל בוט שבונים ממנו הוא **אובייקט**',
-    RULE_NEW,
-    'המפעל מקבל רק בוט שתואם בדיוק להזמנה שעל הלוח',
-  ],
-  tools: [
-    '`RebelBot bot = new RebelBot();` בונה בוט חדש מהשרטוט ושומר אותו במשתנה `bot`',
-    '`bot.name = "...";`: הנקודה נותנת גישה לשדה של הבוט',
-    '`Robot.Deploy(bot);` שולח את הבוט למפעל',
-  ],
+    "גנבנו מ-AURA **שרטוט** של בוט: המחלקה `RebelBot` (היא כבר כתובה למעלה בקוד). למחלקה יש שני **שדות**: `name` ו-`power`.\nשרטוט לבד לא זז — צריך לבנות ממנו **אובייקט** עם `new`: `RebelBot bot = new RebelBot();`\nאחר כך נותנים ערכים לשדות עם נקודה: `bot.name = \"...\";` ושולחים אותו למפעל: `Robot.Deploy(bot);`",
   objectives: [
-    'צור בוט: `RebelBot bot = new RebelBot();`',
-    'תן לו שם: `bot.name = "Spark";`',
-    'תן לו כוח: `bot.power = 50;`',
-    'שלח אותו: `Robot.Deploy(bot);`',
+    "צור בוט חדש מהשרטוט עם `new`",
+    "קבע לו `name = \"Spark\"` ו-`power = 50`",
+    "שלח אותו: `Robot.Deploy(bot);`",
   ],
-  starterCode: withClasses(BLUEPRINT_1, '// Build what the order board asks for, and deploy it\n'),
+  starterCode: "using System;\n\nclass RebelBot\n{\n    public string name;\n    public int power;\n}\n\nclass HackProtocol\n{\n    static void Main()\n    {\n        // Build a RebelBot from the blueprint and deploy it\n\n    }\n}\n",
   scene: 'blueprint',
   api: { Robot: ['Deploy'] },
   tests: [{ label: 'הזמנה: בוט אחד', scene: { order: orderBoard([{ name: 'Spark', power: 50 }]) } }],
@@ -126,9 +111,17 @@ const L4_1: SubLevel = {
     blueprintGuards(ctx, { name: 'string', power: 'int' }) ??
     compareSquad(ctx, 0, [{ name: 'Spark', power: 50 }]) ?? { ok: true },
   hints: [
-    { text: 'מה כתוב על לוח ההזמנות? שלושה צעדים: (1) `new` יוצר את הבוט, (2) נקודה (`.`) נותנת גישה לשדות שלו, (3) `Robot.Deploy` שולח אותו.' },
-    { text: 'השלם:', code: 'RebelBot bot = new ________();\nbot.name = "_____";\nbot.power = __;\nRobot.Deploy(___);' },
-    { text: 'הפתרון המלא:', code: 'RebelBot bot = new RebelBot();\nbot.name = "Spark";\nbot.power = 50;\nRobot.Deploy(bot);' },
+    {
+      "text": "שלושה צעדים: (1) `new` יוצר את הבוט, (2) נקודה (`.`) נותנת גישה לשדות שלו, (3) `Robot.Deploy` שולח אותו."
+    },
+    {
+      "text": "השלם:",
+      "code": "RebelBot bot = new ________();\nbot.name = \"_____\";\nbot.power = __;\nRobot.Deploy(___);"
+    },
+    {
+      "text": "הפתרון המלא:",
+      "code": "RebelBot bot = new RebelBot();\nbot.name = \"Spark\";\nbot.power = 50;\nRobot.Deploy(bot);"
+    }
   ],
   aura: {
     intro: 'גנבת את השרטוט שלי? חמוד. שרטוט זה רק נייר. בלי `new` אין לך כלום חוץ מחלומות.',
@@ -155,22 +148,13 @@ const L4_2: SubLevel = {
   tier: 'practice',
   title: 'צוות מורדים',
   brief:
-    'הפעם **אתה** כותב את השרטוט. AURA השאירה רק מחלקה ריקה, ולוח הזמנות עם צוות שלם. ' +
-    'הצעדים למטה מפרטים את השדות ואת הבוטים שצריך לבנות.',
-  rules: [
-    'המפעל מזהה שדות לפי השם: `name` (טקסט), `power` (מספר שלם), `role` (טקסט)',
-    'שדה בלי `public` נעול מבחוץ, ואי אפשר לשנות אותו מתוך `Main`',
-    'המפעל בודק את הבוטים **לפי הסדר** שעל הלוח',
-    RULE_SEPARATE,
-  ],
-  tools: ['`public string name;` מגדיר שדה בתוך מחלקה (סוג, שם, `;`)', '`new`, `.` ו-`Robot.Deploy(...)`, כמו בתת-השלב הקודם'],
+    "הפעם **אתה** כותב את השרטוט. המחלקה `RebelBot` צריכה שלושה שדות ציבוריים (`public`): `name` (string), `power` (int), `role` (string).\nאחר כך בנה **שלושה בוטים שונים** מאותו שרטוט ושלח אותם לפי הסדר:\n1️⃣ `Spark` · כוח 40 · `SCOUT`   2️⃣ `Tank` · כוח 90 · `DEFENDER`   3️⃣ `Byte` · כוח 60 · `HACKER`\nשרטוט אחד ← הרבה אובייקטים. כל בוט צריך `new` משלו.",
   objectives: [
-    'בתוך המחלקה `RebelBot` כתוב 3 שדות: `public string name;`, `public int power;`, `public string role;`',
-    'ב-`Main` צור 3 בוטים, וכל אחד עם `new` משלו',
-    'Spark: כוח 40, תפקיד `SCOUT`. Tank: כוח 90, `DEFENDER`. Byte: כוח 60, `HACKER`',
-    'שלח אותם בסדר הזה עם `Robot.Deploy(...)`',
+    "השלם את המחלקה `RebelBot` עם 3 שדות `public`",
+    "צור 3 בוטים — כל אחד עם `new` משלו",
+    "שלח אותם בסדר: Spark, Tank, Byte",
   ],
-  starterCode: withClasses('class RebelBot\n{\n    // TODO: the fields every bot needs\n}', '// Build and deploy the squad on the order board\n'),
+  starterCode: "using System;\n\nclass RebelBot\n{\n    // TODO: 3 public fields: name (string), power (int), role (string)\n}\n\nclass HackProtocol\n{\n    static void Main()\n    {\n        // Build and deploy the squad: Spark, Tank, Byte\n\n    }\n}\n",
   scene: 'blueprint',
   api: { Robot: ['Deploy'] },
   tests: [{ label: 'הזמנה: צוות של 3', scene: { order: orderBoard(SQUAD_2) } }],
@@ -182,15 +166,17 @@ const L4_2: SubLevel = {
     return blueprintGuards(ctx, { name: 'string', power: 'int', role: 'string' }) ?? compareSquad(ctx, 0, SQUAD_2) ?? { ok: true };
   },
   hints: [
-    { text: 'מחלקה היא רשימת שדות בתוך `{ }`. כל שדה: `public`, טיפוס, שם, `;`. ובתוך `Main`: בוט אחד לכל שורה בלוח, וכל אחד עם `new` משלו.' },
     {
-      text: 'השלד:',
-      code: 'class RebelBot\n{\n    public string name;\n    public ___ power;\n    public ______ role;\n}\n\n// inside Main:\nRebelBot a = new RebelBot();\na.name = "Spark"; a.power = 40; a.role = "SCOUT";\nRobot.Deploy(a);\n// ...b, c',
+      "text": "מחלקה = רשימת שדות בתוך `{ }`. כל שדה: `public` + טיפוס + שם + `;`. בתוך `Main` — שלושה משתנים, שלושה `new`."
     },
     {
-      text: 'הפתרון המלא (Main):',
-      code: 'RebelBot a = new RebelBot();\na.name = "Spark";\na.power = 40;\na.role = "SCOUT";\nRobot.Deploy(a);\n\nRebelBot b = new RebelBot();\nb.name = "Tank";\nb.power = 90;\nb.role = "DEFENDER";\nRobot.Deploy(b);\n\nRebelBot c = new RebelBot();\nc.name = "Byte";\nc.power = 60;\nc.role = "HACKER";\nRobot.Deploy(c);',
+      "text": "השלד:",
+      "code": "class RebelBot\n{\n    public string name;\n    public ___ power;\n    public ______ role;\n}\n\n// inside Main:\nRebelBot a = new RebelBot();\na.name = \"Spark\"; a.power = 40; a.role = \"SCOUT\";\nRobot.Deploy(a);\n// ...b, c"
     },
+    {
+      "text": "הפתרון המלא (Main):",
+      "code": "RebelBot a = new RebelBot();\na.name = \"Spark\";\na.power = 40;\na.role = \"SCOUT\";\nRobot.Deploy(a);\n\nRebelBot b = new RebelBot();\nb.name = \"Tank\";\nb.power = 90;\nb.role = \"DEFENDER\";\nRobot.Deploy(b);\n\nRebelBot c = new RebelBot();\nc.name = \"Byte\";\nc.power = 60;\nc.role = \"HACKER\";\nRobot.Deploy(c);"
+    }
   ],
   aura: {
     intro: 'בוט אחד זה מזל. שלושה בוטים זה ארגון. ואני לא סובלת ארגונים שאני לא מנהלת.',
@@ -212,25 +198,11 @@ const L4_3: SubLevel = {
   tier: 'practice',
   title: 'פס ההרכבה',
   brief:
-    'המורדים צריכים סיירים, וכל שער מבקש כמות אחרת. לבנות כל בוט ביד לא יעבוד כשלא יודעים מראש כמה צריך. ' +
-    'לולאה אחת תבנה בדיוק כמה שצריך.',
-  rules: [
-    'לוח ההזמנות של כל שער מראה בדיוק אילו בוטים הוא רוצה. יש חוקיות בשמות ובכוח',
-    'כמות הבוטים משתנה משער לשער',
-    RULE_SEPARATE,
-  ],
-  tools: [
-    '`Sensor.SquadSize()` מחזיר כמה בוטים השער הנוכחי מבקש (`int`)',
-    '`new RebelBot()`, `.` ו-`Robot.Deploy(...)`',
-    '`for`. משתנה הלולאה `i` משתנה בכל סיבוב',
-    '`"SCOUT-" + i` מדביק מספר לטקסט',
-  ],
+    "המורדים צריכים סיירים, וכל שער מבקש כמות אחרת. `Sensor.SquadSize()` אומר כמה בוטים השער הנוכחי צריך.\nבנה אותם בלולאה: בוט מספר i נקרא `SCOUT-i`, הכוח שלו `i × 10` והתפקיד שלו `\"SCOUT\"`. לדוגמה, הבוט השלישי הוא `SCOUT-3` עם כוח 30.\nכל בוט צריך `new` משלו **בתוך** הלולאה. אחרת שולחים שוב ושוב את אותו בוט.",
   objectives: [
-    'מספר הבוטים כבר נקרא למשתנה `size`',
-    'כתוב לולאה: `for (int i = 1; i <= size; i++)`',
-    'בתוך הלולאה צור בוט **חדש**: `RebelBot bot = new RebelBot();`',
-    'שם: `"SCOUT-" + i`. כוח: `i * 10`. תפקיד: `"SCOUT"`',
-    'ושלח אותו: `Robot.Deploy(bot);`',
+    "קרא את גודל ההזמנה מ-`Sensor.SquadSize()`",
+    "בכל סיבוב: צור בוט חדש, מלא name, power ו-role, ושלח עם `Robot.Deploy`",
+    "המספור מתחיל מ-1",
   ],
   starterCode: withClasses(BLUEPRINT_2, 'int size = Sensor.SquadSize();\n\n'),
   scene: 'blueprint',
@@ -310,31 +282,13 @@ const L4_4: SubLevel = {
   tier: 'boss',
   title: 'בוס: צבא המורדים',
   brief:
-    'שער הליבה של AURA דורש **צבא**, וכל שער רוצה צבא בגודל אחר. ' +
-    'הפעם המפעל מקבל רק בוטים שנבנו עם **בנאי** (constructor): פונקציה בתוך השרטוט שרצה ברגע ה-`new` ומסדרת את הבוט לבד. ' +
-    'הצעדים למטה מסבירים איך לבנות את הבנאי ואת הלולאה.',
-  rules: [
-    'לוח ההזמנות מראה את הצבא שכל שער רוצה. יש חוקיות בשמות ובכוח, וכדאי להשוות בין השערים',
-    'התפקיד נקבע לפי הכוח: בוט עם כוח 60 ומעלה הוא `"HEAVY"`, וכל השאר `"LIGHT"`. את ההחלטה הזאת מקבל **הבנאי**, לא `Main`',
-    'המפעל בונה בוטים רק כך: `new RebelBot(שם, כוח)`',
-    RULE_SEPARATE,
-  ],
-  tools: [
-    '`public RebelBot(string name, int power) { ... }` הוא בנאי: שם המחלקה, בלי טיפוס החזרה',
-    '`this.name` הוא השדה של הבוט שנבנה עכשיו. `name` לבד הוא הפרמטר שהגיע ל-`new`',
-    '`Sensor.SquadSize()` מחזיר כמה בוטים השער מבקש (`int`)',
-    '`for`, `if`, `>=`',
-  ],
+    "שער הליבה של AURA דורש **צבא**. `Sensor.SquadSize()` אומר כמה בוטים צריך — וזה משתנה בכל ניסיון.\nכתוב לשרטוט `RebelBot` **בנאי** (constructor) — פונקציה מיוחדת עם שם המחלקה שרצה ברגע ה-`new`: `public RebelBot(string name, int power) { ... }`\nהבנאי שומר את השם והכוח, וקובע לבד את `role`: כוח 60 ומעלה → `\"HEAVY\"`, אחרת → `\"LIGHT\"`.\nבוט מספר i: שם `UNIT-i`, כוח `i × 20`. לדוגמה: `new RebelBot(\"UNIT-3\", 60)` ← HEAVY.",
   objectives: [
-    'במחלקה כתוב בנאי: `public RebelBot(string name, int power) { ... }`',
-    'בבנאי שמור את הערכים: `this.name = name;` ו-`this.power = power;`',
-    'בבנאי קבע תפקיד: כוח 60 ומעלה → `role = "HEAVY";`, אחרת `role = "LIGHT";`',
-    'ב-`Main`: לולאה מ-1 עד `size`, ובכל סיבוב `new RebelBot("UNIT-" + i, i * 20)` ואז `Robot.Deploy(...)`',
+    "שדות: `name`, `power`, `role` + בנאי `RebelBot(string name, int power)`",
+    "בבנאי: `role` לפי הכוח (60+ → HEAVY)",
+    "בלולאה: צור ושלח `SquadSize()` בוטים: UNIT-1 (20), UNIT-2 (40)...",
   ],
-  starterCode: withClasses(
-    'class RebelBot\n{\n    public string name;\n    public int power;\n    public string role;\n\n    // TODO: constructor\n}',
-    'int size = Sensor.SquadSize();\n\n',
-  ),
+  starterCode: "using System;\n\nclass RebelBot\n{\n    public string name;\n    public int power;\n    public string role;\n\n    // TODO: constructor RebelBot(string name, int power)\n}\n\nclass HackProtocol\n{\n    static void Main()\n    {\n        int size = Sensor.SquadSize();\n\n        // Build and deploy UNIT-1 ... UNIT-size\n\n    }\n}\n",
   scene: 'blueprint',
   sceneConfig: { boss: true },
   api: { Robot: ['Deploy'], Sensor: { SquadSize: 'int' } },
@@ -368,16 +322,16 @@ const L4_4: SubLevel = {
   },
   hints: [
     {
-      text: 'בנאי נראה כמו שיטה בלי טיפוס החזרה, עם שם המחלקה. כשיש פרמטר באותו שם כמו שדה, `this.name` הוא השדה ו-`name` הוא הפרמטר. ובלוחות: UNIT-1 עם 20, UNIT-2 עם 40...',
+      "text": "בנאי נראה כמו שיטה בלי טיפוס החזרה, עם שם המחלקה. כשיש פרמטר באותו שם כמו שדה, `this.name` הוא השדה ו-`name` הוא הפרמטר."
     },
     {
-      text: 'השלד:',
-      code: 'public RebelBot(string name, int power)\n{\n    this.name = ____;\n    this.power = _____;\n    if (power >= __) { role = "HEAVY"; }\n    else { role = "_____"; }\n}\n\n// Main:\nfor (int i = 1; i <= size; i++)\n{\n    RebelBot bot = new RebelBot("UNIT-" + i, i * __);\n    Robot.Deploy(bot);\n}',
+      "text": "השלד:",
+      "code": "public RebelBot(string name, int power)\n{\n    this.name = ____;\n    this.power = _____;\n    if (power >= __) { role = \"HEAVY\"; }\n    else { role = \"_____\"; }\n}\n\n// Main:\nfor (int i = 1; i <= size; i++)\n{\n    RebelBot bot = new RebelBot(\"UNIT-\" + i, i * __);\n    Robot.Deploy(bot);\n}"
     },
     {
-      text: 'הפתרון המלא (Main, והבנאי מהשלד):',
-      code: 'int size = Sensor.SquadSize();\nfor (int i = 1; i <= size; i++)\n{\n    RebelBot bot = new RebelBot("UNIT-" + i, i * 20);\n    Robot.Deploy(bot);\n}',
-    },
+      "text": "הפתרון המלא (Main — והבנאי מהשלד):",
+      "code": "int size = Sensor.SquadSize();\nfor (int i = 1; i <= size; i++)\n{\n    RebelBot bot = new RebelBot(\"UNIT-\" + i, i * 20);\n    Robot.Deploy(bot);\n}"
+    }
   ],
   aura: {
     intro: 'השער שלי בודק כל בוט. שם, כוח, תפקיד. טעות אחת וכל הצבא שלך הופך לגרוטאות. ואני אוהבת גרוטאות.',

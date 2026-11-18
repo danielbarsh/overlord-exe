@@ -294,7 +294,6 @@ export default function App() {
           current={current}
           aura={aura}
           success={success}
-          running={running}
           onNext={() => goTo(idx + 1)}
           onStay={() => setSuccess(false)}
         />

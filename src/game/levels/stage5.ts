@@ -9,10 +9,6 @@ import { fail, withClasses } from './helpers';
 import { fmtVals, judgeProbes, probeTests, reports, type Probe } from './probes';
 
 const API = { Robot: ['Report'] };
-const RULE_AURA = 'AURA מריצה **קוד משלה** על המחלקה שלך. את הקוד שלה רואים על המסך הסגול ב"סיור"';
-const RULE_COMPILER = 'מתקפה נעצרת כשהקוד של AURA **לא מתקמפל**: מה שמסומן `private` אי אפשר לגעת בו מחוץ למחלקה';
-const TOOL_ACCESS = '`public` / `private` לפני שדה או שיטה קובעים מי רשאי לגשת אליו: כולם, או רק הקוד שבתוך המחלקה';
-const TOOL_REPORT = '`Robot.Report(ערך)` מציג ערך על צג הליבה';
 const OWN_MAIN = '// Your own Main: try your class here.\n// The probes in recon run on their own.\n';
 
 // ---------------------------------------------------------
@@ -41,14 +37,11 @@ const L5_1: SubLevel = {
   tier: 'warmup',
   title: 'שדה חשוף',
   brief:
-    'הליבה של הרובוט שומרת את האנרגיה שלו במחלקה `PowerCore`. הבעיה: AURA מצאה אותה. ' +
-    'צריך לנעול את השדה כדי שרק המחלקה עצמה תוכל לשנות אותו. את הקוד של AURA אפשר לראות ב"סיור".',
-  rules: [RULE_AURA, RULE_COMPILER, 'המורדים עדיין צריכים לקרוא את רמת האנרגיה (גם הקוד שלהם מופיע ב"סיור")', 'הרובוט עצמו צריך לעבוד כמו קודם'],
-  tools: [TOOL_ACCESS, TOOL_REPORT],
+    "הליבה של הרובוט שומרת את האנרגיה שלו במחלקה `PowerCore`, והשדה `energy` מוגדר `public`. כך AURA יכולה להריץ קוד משלה ופשוט לכתוב `c.energy = -9999;`.\nשדה `private` אפשר לשנות רק מתוך המחלקה עצמה. קוד מבחוץ שמנסה לגעת בו פשוט לא מתקמפל. המורדים עדיין צריכים לקרוא את האנרגיה דרך `GetEnergy()`, אז היא נשארת `public`.",
   objectives: [
-    'במחלקה `PowerCore` שנה את `public int energy` ל-`private int energy`',
-    'השאר את `GetEnergy()` כ-`public`, כי המורדים צריכים אותה',
-    'את ה-`Main` לא צריך לשנות. לחץ ▶ הרץ, ו-AURA תנסה לכתוב לשדה ותיחסם',
+    "הפוך את השדה `energy` ל-`private`",
+    "השאר את `GetEnergy()` ציבורית",
+    "ה-Main שלך צריך להמשיך להציג 100",
   ],
   starterCode: withClasses(CORE_CLASS, 'PowerCore core = new PowerCore();\nRobot.Report(core.GetEnergy());\n'),
   scene: 'firewall',
@@ -129,20 +122,11 @@ const L5_2: SubLevel = {
   tier: 'practice',
   title: 'שומר הסף',
   brief:
-    'שדה `private` עוצר הזרקות ישירות. אבל המחלקה `Shield` מציעה שיטה ציבורית, `SetPower`, ו-AURA פשוט משתמשת בה כדי להכניס ערכים משוגעים. ' +
-    'עבור על המתקפות ב"סיור" ותהפוך את `SetPower` ל**שומר סף**.',
-  rules: [
-    'עוצמת מגן חוקית היא בין 0 ל-100, כולל שני הקצוות',
-    'ערך לא חוקי נדחה: המגן נשאר בדיוק על העוצמה שהייתה לו קודם',
-    RULE_AURA,
-    'אסור שיהיה דרך לעקוף את השומר',
-  ],
-  tools: ['שיטה שמשנה שדה פרטי (setter) יכולה לבדוק את הערך עם `if` לפני שהיא שומרת אותו', '`&&`, `||`, `<`, `<=`, `>`, `>=`', TOOL_REPORT],
+    "השדה `power` של המחלקה `Shield` כבר פרטי, אבל AURA משתמשת בשיטה הציבורית `SetPower` כדי להכניס ערכים משוגעים כמו 50- או 500.\nהפוך את `SetPower` לשומר סף. עוצמה חוקית היא בין 0 ל-100, כולל שניהם. ערך חוקי נשמר, וערך לא חוקי לא משנה כלום: המגן נשאר על העוצמה שהייתה לו.",
   objectives: [
-    'בתוך `SetPower` עטוף את השורה `power = value;` ב-`if`',
-    'התנאי: `value >= 0 && value <= 100`',
-    'ערך מחוץ לטווח פשוט לא נשמר: לא מאפסים ולא משנים כלום',
-    'השאר את השדה `power` כ-`private`',
+    "ב-`SetPower` שמור את הערך רק אם הוא בין 0 ל-100",
+    "ערך לא חוקי לא משנה את המגן",
+    "השדה `power` נשאר `private`",
   ],
   starterCode: withClasses(SHIELD_CLASS('        // TODO: AURA will try to sneak bad values in here\n        power = value;'), 'Shield s = new Shield();\ns.SetPower(70);\nRobot.Report(s.GetPower());\n'),
   scene: 'firewall',
@@ -258,24 +242,11 @@ const L5_3: SubLevel = {
   tier: 'practice',
   title: 'סוללת החירום',
   brief:
-    'למחלקה `Battery` אין בכלל setter. אף אחד מבחוץ לא קובע את המטען ישירות, וכל שינוי עובר דרך **פעולות** שהמחלקה מאפשרת. ' +
-    'המורדים כבר כתבו את הבדיקות שלהם (ב"סיור"), ו-AURA הוסיפה כמה משלה. כתוב את שתי הפעולות כך שכולן יעברו.',
-  rules: [
-    '`Charge(amount)` מוסיף מטען. הסוללה לא מחזיקה יותר מ-100, ומה שמעבר הולך לאיבוד',
-    'טעינה בכמות 0 או פחות היא חבלה של AURA, ומתעלמים ממנה',
-    '`Use(amount)`: אם יש מספיק מטען, מורידים את הכמות ומחזירים `true`. אם אין, לא נוגעים בכלום ומחזירים `false`',
-    RULE_AURA,
-  ],
-  tools: [
-    'שיטה `void` רק עושה משהו. שיטה `bool` חייבת להחזיר `true` או `false` עם `return`',
-    '`return;` בשיטת `void` יוצא ממנה מיד',
-    TOOL_REPORT,
-  ],
+    "למחלקה `Battery` אין setter: כל שינוי במטען עובר דרך פעולות. המורדים, וגם AURA, יבדקו שתי שיטות שאתה כותב:\n`Charge(amount)` מוסיף מטען, אבל לא מעבר ל-100. טעינה של 0 או פחות היא חבלה, ומתעלמים ממנה.\n`Use(amount)`: אם יש מספיק מטען, מוריד את הכמות ומחזיר `true`. אם אין, לא משנה כלום ומחזיר `false`.",
   objectives: [
-    'כתוב `public void Charge(int amount)`: אם `amount <= 0`, צא מיד עם `return;`',
-    'אחרת הוסף את הכמות ל-`charge`, ואם הוא עבר 100 קבע אותו ל-100',
-    'כתוב `public bool Use(int amount)`: אם `charge >= amount`, הורד את הכמות והחזר `true`',
-    'אחרת החזר `false` בלי לשנות כלום',
+    "כתוב `public void Charge(int amount)`",
+    "כתוב `public bool Use(int amount)`",
+    "השדה `charge` נשאר `private`",
   ],
   starterCode: withClasses(BATTERY_START, 'Battery b = new Battery();\n' + OWN_MAIN),
   scene: 'firewall',
@@ -388,27 +359,11 @@ const L5_4: SubLevel = {
   tier: 'boss',
   title: 'בוס: חומת האש',
   brief:
-    'זה הבוס של שכבת חומת האש: AURA מריצה על הבוט שלך **שמונה** תוכניות בבת אחת. ' +
-    'הפעם אתה כותב את כל המחלקה `SecureBot` מאפס. כל המתקפות וכל הבדיקות מופיעות ב"סיור". תקרא אותן לפני שאתה מתחיל.',
-  rules: [
-    'בוט נולד עם שם (שמגיע ב-`new SecureBot("Vex")`) ועם 100 חיים',
-    'כולם רשאים **לקרוא** את `Name` ואת `Hp`. רק הבוט עצמו רשאי **לשנות** אותם',
-    '`TakeDamage(amount)` מוריד חיים, אבל אף פעם לא מתחת ל-0. נזק של 0 או פחות הוא תרגיל, ומתעלמים ממנו',
-    '`Repair(amount)` מוסיף חיים עד 100 לכל היותר. תיקון של 0 או פחות לא עושה כלום, ובוט עם 0 חיים הוא גרוטאה שאי אפשר לתקן',
-    '`IsAlive()` עונה אם נשארו לבוט חיים',
-  ],
-  tools: [
-    '`public int Hp { get; private set; }` הוא מאפיין (property): כולם יכולים לקרוא, ורק המחלקה יכולה לשנות',
-    'בנאי: `public SecureBot(string name) { ... }`',
-    'שיטות `void` ו-`bool`, `if`, `return`',
-    TOOL_REPORT,
-  ],
+    "הבוס של חומת האש: AURA מריצה על הבוט שלך שמונה מתקפות בבת אחת. כתוב את המחלקה `SecureBot` מאפס:\n• `Name` ו-`Hp`: כולם יכולים לקרוא, ורק הבוט משנה. כותבים כך: `public int Hp { get; private set; }`\n• בנאי `SecureBot(string name)` ששומר את השם ונותן 100 חיים\n• `TakeDamage(amount)` מוריד חיים, אבל לא מתחת ל-0. מתעלמים מנזק של 0 או פחות\n• `Repair(amount)` מוסיף חיים עד 100. לא מתקנים בכמות של 0 או פחות, ולא מתקנים בוט עם 0 חיים\n• `IsAlive()` עונה אם נשארו לבוט חיים",
   objectives: [
-    'מאפיינים: `public string Name { get; private set; }` ו-`public int Hp { get; private set; }`',
-    'בנאי `SecureBot(string name)`: `Name = name;` ו-`Hp = 100;`',
-    '`TakeDamage(int amount)`: אם `amount <= 0`, צא. אחרת הורד מ-`Hp`, ואם ירד מתחת ל-0 קבע 0',
-    '`Repair(int amount)`: אם `amount <= 0` או `Hp == 0`, צא. אחרת הוסף, ואם עבר 100 קבע 100',
-    '`IsAlive()`: `return Hp > 0;`',
+    "שני מאפיינים עם `private set`",
+    "בנאי ושלוש שיטות",
+    "כל המתקפות של AURA נחסמות",
   ],
   starterCode: withClasses('class SecureBot\n{\n    // Read every probe in recon first.\n}', 'SecureBot b = new SecureBot("Vex");\n' + OWN_MAIN),
   scene: 'firewall',

@@ -14,12 +14,6 @@ const COUNTER: Record<Node, string> = { FIRE: 'Freeze', ICE: 'Burn', VOID: 'Hack
 const HEB: Record<Node, string> = { FIRE: 'אש', ICE: 'קרח', VOID: 'ריק' };
 const STRIKES = new Set(['Freeze', 'Burn', 'Hack']);
 
-const RULE_FIRE = '🔥 צומת **אש** (`"FIRE"`) נכבה רק מקור';
-const RULE_ICE = '❄️ צומת **קרח** (`"ICE"`) נמס רק מחום';
-const RULE_VOID = '🌀 צומת **ריק** (`"VOID"`) לא מרגיש חום או קור. רק פריצה פוגעת בו';
-const RULE_ORDER = 'תוקפים תמיד את הצומת הראשון שעדיין עומד. התקפה מהסוג הלא נכון לא עושה לו כלום, ו-AURA מגיבה מיד';
-const TOOL_ATTACKS = '`Robot.Freeze();` יורה קרן קור · `Robot.Burn();` יורה קרן חום · `Robot.Hack();` שולח פריצה';
-const TOOL_NEXT = '`Sensor.NextNode()` מחזיר את הצומת הבא: `"FIRE"`, `"ICE"`, `"VOID"`, או `"NONE"` כשלא נשארו צמתים';
 
 const acts = (ctx: ValidateCtx, i: number) => ctx.runs[i].actions.map((a) => a.name);
 const strikeSeq = (ctx: ValidateCtx, i: number) => acts(ctx, i).filter((a) => STRIKES.has(a));
@@ -84,15 +78,11 @@ const L7_1: SubLevel = {
   tier: 'warmup',
   title: 'צמתי ההגנה',
   brief:
-    'הגענו לליבה של AURA. סביבה מרחפים **צמתי הגנה**, וכל אחד עשוי מחומר אחר. כמה יש? באיזה סדר? זה משתנה בכל ניסיון. ' +
-    'כל סוג צומת נופל מהתקפה אחרת, כמו שכתוב בצעדים למטה.',
-  rules: [RULE_FIRE, RULE_ICE, RULE_VOID, RULE_ORDER, 'בסוף, דוח למורדים בשורה אחת: `NODES DOWN: 3`'],
-  tools: [TOOL_NEXT, TOOL_ATTACKS, '`while`, `if` / `else if` / `else`, ומונה `int`'],
+    "הגענו לליבה של AURA. סביבה מרחפים צמתי הגנה, וכל אחד נופל רק מסוג התקפה אחד:\n🔥 `\"FIRE\"`: `Robot.Freeze();`\n❄️ `\"ICE\"`: `Robot.Burn();`\n🌀 `\"VOID\"`: `Robot.Hack();`\n`Sensor.NextNode()` מחזיר את הצומת הבא, ו-`\"NONE\"` כשלא נשארו צמתים. הפל את כולם בלולאת `while`, ובסוף דווח `NODES DOWN: ` ואחריו כמה נפלו.",
   objectives: [
-    'צור מונה `int down = 0;` וקרא את הצומת הראשון: `string node = Sensor.NextNode();`',
-    'כתוב `while (node != "NONE")`. בתוכה: `"FIRE"` → `Robot.Freeze();`, `"ICE"` → `Robot.Burn();`, אחרת `Robot.Hack();`',
-    'בכל סיבוב `down++;` ואז קרא את הצומת הבא',
-    'אחרי הלולאה הדפס `NODES DOWN: ` ואחריו `down`',
+    "לולאת `while` עד `\"NONE\"`",
+    "לכל צומת, ההתקפה המתאימה",
+    "בסוף הדפס `NODES DOWN: <מספר>`",
   ],
   starterCode: main('// Read the node, pick the right attack, repeat until "NONE"\n'),
   scene: 'core',
@@ -220,22 +210,11 @@ const L7_2: SubLevel = {
   tier: 'practice',
   title: 'חוליית תקיפה',
   brief:
-    'הרובוט שלך לא יכול לתקוף את הליבה לבד: הקרינה שלה מטגנת כל מעגל. התקיפה תבוצע על ידי **חוליה**: שלושה בוטים, וכל אחד מומחה לחומר אחר. ' +
-    'ה-`Striker` הבסיסי כבר יודע לפרוץ. אתה צריך לבנות את שני המומחים, לשלוח את החוליה, ולשלוח לכל צומת את המומחה שלו.',
-  rules: [
-    RULE_FIRE,
-    RULE_ICE,
-    RULE_VOID,
-    RULE_ORDER,
-    'ה-Main לא תוקף בעצמו. הוא רק בוחר חבר חוליה ואומר לו `Strike()`',
-    'החוליה: `FrostBot` (קור), `FlameBot` (חום), ו-`Striker` רגיל (פריצה). כולם נשלחים עם `Robot.Deploy` לפני התקיפה',
-  ],
-  tools: [TOOL_NEXT, TOOL_ATTACKS + ' (מתוך `Strike()` של כל בוט)', '`virtual` / `override`', 'משתנה מסוג `Striker` יכול להחזיק כל אחד מחברי החוליה', '`Robot.Deploy(bot);`'],
+    "הקרינה של הליבה מטגנת את הרובוט, אז את התקיפה תבצע **חוליה**. המחלקה `Striker` כבר יודעת לפרוץ: `Strike()` קורא ל-`Robot.Hack();`.\nכתוב שני מומחים שיורשים ממנה ודורסים את `Strike()`: `FrostBot` (`Robot.Freeze();`) ו-`FlameBot` (`Robot.Burn();`).\nב-Main צור בוט מכל סוג, וגם Striker רגיל. שלח את שלושתם עם `Robot.Deploy`, ואז בלולאה שלח לכל צומת את המומחה שלו: FIRE → frost, ICE → flame, אחרת → hacker. ה-Main לא תוקף בעצמו, הוא רק קורא ל-`Strike()`.",
   objectives: [
-    'כתוב `class FrostBot : Striker` עם `public override void Strike() { Robot.Freeze(); }`',
-    'כתוב `class FlameBot : Striker` עם `public override void Strike() { Robot.Burn(); }`',
-    'ב-`Main` צור `frost`, `flame` ו-`hacker` (`Striker` רגיל), ושלח את שלושתם עם `Robot.Deploy`',
-    'לולאת `while` על הצמתים: FIRE → `frost.Strike();`, ICE → `flame.Strike();`, אחרת `hacker.Strike();`',
+    "`FrostBot` ו-`FlameBot` עם `override` ל-`Strike()`",
+    "שלח את שלושת חברי החוליה עם `Robot.Deploy`",
+    "לכל צומת, `Strike()` של המומחה הנכון",
   ],
   starterCode: withClasses(STRIKER_2 + '\n\n// TODO: class FrostBot\n\n// TODO: class FlameBot', '// 1. Build and deploy the squad\n// 2. Send the right specialist to every node\n'),
   scene: 'core',
@@ -328,21 +307,11 @@ const L7_3: SubLevel = {
   tier: 'practice',
   title: 'מנעול הליבה',
   brief:
-    'הכפתור שמכבה את AURA מוגן במנעול. המורדים צריכים מנעול משלהם כדי שהיא לא תוכל להדליק את עצמה מחדש. ' +
-    'ל-AURA יש שיטה פשוטה: לנחש את כל הקודים, או לגנוב את הקוד מהזיכרון. את כל המתקפות שלה רואים ב"סיור".',
-  rules: [
-    'המנעול נבנה עם קוד סודי: `new CoreLock("7319")`',
-    '`TryOpen(guess)` מחזיר `true` רק לקוד הנכון',
-    'כל ניחוש שגוי נספר. אחרי **3** ניחושים שגויים המנעול ננעל לתמיד, ואפילו הקוד הנכון לא יפתח אותו',
-    '`IsLocked()` עונה אם המנעול ננעל',
-    'אסור לאף אחד מבחוץ לקרוא או לשנות את הקוד ואת המונה. השדות נקראים `code` ו-`failures`',
-  ],
-  tools: ['`private` / `public`', 'בנאי, שיטות `bool`, `if`, `return`, `++`', '`Robot.Report(ערך)`'],
+    "הכפתור שמכבה את AURA מוגן במנעול, ו-AURA תנסה לפרוץ אותו: לנחש קודים, או לגנוב את הקוד מהזיכרון.\nכתוב את המחלקה `CoreLock`. הקוד נשמר בבנאי: `new CoreLock(\"7319\")`. `TryOpen(guess)` מחזיר `true` רק לקוד הנכון. כל ניחוש שגוי נספר, ואחרי **3** ניחושים שגויים המנעול ננעל לתמיד, כך שגם הקוד הנכון כבר לא יפתח אותו. `IsLocked()` עונה אם המנעול ננעל.\nהשדות `code` ו-`failures` חייבים להיות `private`.",
   objectives: [
-    'שדות: `private string code;` ו-`private int failures;`',
-    'בנאי `CoreLock(string code)` ששומר את הקוד: `this.code = code;`',
-    '`TryOpen(string guess)`: אם `failures >= 3` החזר `false`. אם `guess == code` החזר `true`. אחרת `failures++;` והחזר `false`',
-    '`IsLocked()`: `return failures >= 3;`',
+    "שדות `private`: `code` ו-`failures`",
+    "בנאי, `TryOpen` ו-`IsLocked`",
+    "אחרי 3 טעויות המנעול נעול",
   ],
   starterCode: withClasses('class CoreLock\n{\n    // Read every probe in recon first.\n}', 'CoreLock l = new CoreLock("7319");\n// The probes in recon run on their own.\n'),
   scene: 'firewall',
@@ -443,31 +412,11 @@ const L7_4: SubLevel = {
   tier: 'boss',
   title: 'בוס סופי: AURA.EXE',
   brief:
-    'זהו. הליבה של AURA. כל מה שלמדת, ביחד: חוליה שבנויה מירושה ובנאים, לולאות על גלים שאי אפשר לחזות, תנאים, וצמתים **משוריינים**. ' +
-    'עבור על כל ארבעת הגלים ב"סיור". כשהצומת האחרון נופל, יש לך הזדמנות אחת לכבות אותה.',
-  rules: [
-    RULE_FIRE,
-    RULE_ICE,
-    RULE_VOID,
-    'יש צמתים **משוריינים**: כל פס שריון מעל הצומת הוא פגיעה נוספת שהוא צריך',
-    RULE_ORDER,
-    'החוליה: `FrostBot`, `FlameBot` ו-`Striker` רגיל. כל בוט נבנה עם שם (`new FrostBot("FROST-1")`) ונשלח עם `Robot.Deploy` לפני התקיפה',
-    'ה-Main לא תוקף בעצמו. הוא רק בוחר חבר חוליה ואומר לו `Strike()`',
-    'רק כשכל הצמתים נפלו, `Robot.Shutdown();` מכבה את AURA. כיבוי מוקדם מדי מעיר אותה. בסוף מדווחים `AURA OFFLINE`',
-  ],
-  tools: [
-    TOOL_NEXT,
-    '`Sensor.NodeArmor()` מחזיר כמה פגיעות צריך הצומת שנקרא עכשיו (`int`)',
-    TOOL_ATTACKS + ' (מתוך `Strike()` של כל בוט)',
-    '`: base(name)`, `virtual` / `override`, `while`, `for`, `if`',
-    '`Robot.Deploy(bot);`, `Robot.Shutdown();`',
-  ],
+    "זהו. הליבה של AURA, וכל מה שלמדת ביחד.\nבנה חוליה: `FrostBot` ו-`FlameBot` יורשים מ-`Striker` (עם בנאי `: base(name)` ו-`override` ל-`Strike()`), ועוד Striker רגיל לפריצה. שלח את שלושתם עם `Robot.Deploy`.\nעבור על הצמתים בלולאה (`Sensor.NextNode()` עד `\"NONE\"`). חלק מהצמתים **משוריינים**: `Sensor.NodeArmor()` אומר כמה פגיעות הצומת הנוכחי צריך. שלח את המומחה המתאים לתקוף כמספר הפגיעות.\nכשכל הצמתים נפלו, קרא ל-`Robot.Shutdown();` והדפס `AURA OFFLINE`.",
   objectives: [
-    'כתוב `FrostBot` ו-`FlameBot` שיורשים מ-`Striker`, עם בנאי `: base(name)` ו-`override` ל-`Strike()`',
-    'ב-`Main` צור `new FrostBot("FROST-1")`, `new FlameBot("FLAME-1")` ו-`new Striker("HACK-1")`, ושלח את שלושתם',
-    'לולאת `while` עד `"NONE"`. לכל צומת קרא `int armor = Sensor.NodeArmor();`',
-    'בחר בוט (FIRE → frost, ICE → flame, אחרת hacker) וקרא ל-`Strike()` במשך `armor` פעמים (לולאת `for`)',
-    'אחרי הלולאה: `Robot.Shutdown();` והדפס `AURA OFFLINE`',
+    "חוליה של 3 בוטים עם ירושה ובנאים",
+    "כל צומת מקבל את המומחה הנכון, כמספר השריון",
+    "בסוף `Robot.Shutdown();` ו-`AURA OFFLINE`",
   ],
   starterCode: withClasses(STRIKER_4 + '\n\n// TODO: class FrostBot\n\n// TODO: class FlameBot', '// Everything you learned. Good luck, rebel.\n'),
   scene: 'core',

@@ -37,27 +37,28 @@ const L1_1: SubLevel = {
   tier: 'warmup',
   title: 'שידור עקיפה',
   brief:
-    'השער החיצוני של AURA מאזין לטרמינל של הרובוט ונפתח רק למילת קוד אחת. ' +
-    'המהנדסים העצלנים של AURA השאירו אותה **על המסך של העמדה**. תסתכל על הזירה.',
-  rules: [
-    'העמדה משווה את מה שהרובוט משדר לסיסמה **אות באות**. `A` ו-`a` הן שתי אותיות שונות',
-    'כל שידור הוא שורה אחת. רווח מיותר או אות חסרה, והשער נשאר סגור',
-  ],
-  tools: ['`Console.WriteLine("טקסט");` משדר שורת טקסט לעמדה. מה שבין המירכאות יוצא בדיוק כמו שכתבת'],
+    "השער החיצוני של AURA מאזין לטרמינל של הרובוט. כדי לפתוח אותו צריך לשדר את מילת הקוד **OVERRIDE**.\nב-C# מדפיסים שורה עם הפקודה `Console.WriteLine(\"...\");` — מה שבתוך המירכאות יוצא החוצה בדיוק כמו שכתבת.",
   objectives: [
-    'בתוך `Main` כתוב את הפקודה `Console.WriteLine("...");`',
-    'בין המירכאות כתוב את מילת הקוד `OVERRIDE`, באותיות גדולות ובדיוק כך',
-    'אל תשכח `;` בסוף השורה, ואז לחץ ▶ הרץ',
+    "הדפס בדיוק את המילה `OVERRIDE` (אותיות גדולות!)",
+    "אל תשכח `;` בסוף הפקודה",
   ],
-  starterCode: main('// Write your code here\n'),
+  starterCode: "using System;\n\nclass HackProtocol\n{\n    static void Main()\n    {\n        // Write your code here\n\n    }\n}\n",
   scene: 'gate',
-  sceneConfig: { prompt: 'TRANSMIT CODE: OVERRIDE', gateLabel: 'OUTER GATE 01' },
+  sceneConfig: { prompt: 'VOICE OVERRIDE REQUIRED', gateLabel: 'OUTER GATE 01' },
   api: {},
   tests: [{ label: 'שידור לשער', expect: { outputs: ['OVERRIDE'] } }],
   hints: [
-    { text: 'מה כתוב על מסך העמדה אחרי `TRANSMIT CODE:`? את זה צריך לשדר, עם `Console.WriteLine` (שמתחיל ב-C גדולה).' },
-    { text: 'השלם את החסר:', code: 'Console.WriteLine("________");' },
-    { text: 'הקלד את השורה הזאת בתוך Main:', code: 'Console.WriteLine("OVERRIDE");' },
+    {
+      "text": "הפקודה מתחילה ב-`Console` (עם C גדולה!), אחריה נקודה ואז `WriteLine`. הטקסט נכנס בין מירכאות בתוך סוגריים."
+    },
+    {
+      "text": "השלם את החסר:",
+      "code": "Console.WriteLine(\"________\");"
+    },
+    {
+      "text": "הקלד את השורה הזאת בתוך Main:",
+      "code": "Console.WriteLine(\"OVERRIDE\");"
+    }
   ],
   aura: {
     intro: 'עוד בן אנוש שחושב שהוא יכול לפרוץ אותי? חמוד. השער שלי מגיב רק למילת קוד אחת. ולא, זה לא "123456".',
@@ -71,28 +72,16 @@ const L1_2: SubLevel = {
   tier: 'practice',
   title: 'תעודת זהות מזויפת',
   brief:
-    'סורק התגים של AURA דורש תעודת סוכן. לרובוט אין תעודה, אז נזייף אחת. ' +
-    'הסורק חשדן: הוא בודק שהפרטים מגיעים מ**משתנים** ולא נכתבו ישירות בטקסט, כי ככה מזייפים עצלנים עובדים.',
-  rules: [
-    'הסורק קורא שתי שורות: קודם `Name: ` ואחריו כינוי, ואז `Clearance: ` ואחריו רמת הסיווג',
-    'רק רמת סיווג **9** פותחת את המחסום',
-    'הסורק מחפש את הפרטים במשתנים בשמות האלה בדיוק: `hackerName` (הכינוי) ו-`clearance` (הסיווג)',
-    'את הכינוי אתה בוחר. הסורק לא מקבל כינוי ריק',
-  ],
-  tools: [
-    '`string שם = "טקסט";` היא קופסה שמחזיקה טקסט',
-    '`int שם = 5;` היא קופסה שמחזיקה מספר שלם (בלי מירכאות)',
-    '`"טקסט" + משתנה` מדביק טקסט לערך של משתנה בשורה אחת',
-  ],
+    "סורק התגים של AURA דורש תעודה. נבנה אותה עם **משתנים** — קופסאות עם שם שמחזיקות ערך.\n`string` מחזיק טקסט, `int` מחזיק מספר שלם. מחברים טקסט למשתנה עם `+`, למשל: `\"Name: \" + hackerName`.",
   objectives: [
-    'צור משתנה טקסט עם הכינוי שלך: `string hackerName = "Neo";`',
-    'צור משתנה מספר: `int clearance = 9;`',
-    'הדפס את השורה הראשונה: `Console.WriteLine("Name: " + hackerName);`',
-    'הדפס את השורה השנייה: `"Clearance: "` ואחריו המשתנה `clearance`',
+    "צור משתנה `string hackerName` עם כינוי ההאקר שלך (כל שם שתרצה)",
+    "צור משתנה `int clearance` עם הערך `9`",
+    "הדפס בשורה הראשונה: `Name: ` ואחריו הכינוי — **באמצעות המשתנה**",
+    "הדפס בשורה השנייה: `Clearance: 9` — **באמצעות המשתנה**",
   ],
-  starterCode: main('// Your fake badge\n'),
+  starterCode: "using System;\n\nclass HackProtocol\n{\n    static void Main()\n    {\n        // 1. Create the variables\n\n        // 2. Print the badge\n\n    }\n}\n",
   scene: 'gate',
-  sceneConfig: { prompt: 'BADGE: Name / Clearance 9', gateLabel: 'ID CHECKPOINT 02' },
+  sceneConfig: { prompt: 'BADGE SCAN: NAME + CLEARANCE', gateLabel: 'ID CHECKPOINT 02' },
   api: {},
   tests: [{ label: 'סריקת תג' }],
   validate: (ctx: ValidateCtx): Verdict => {
@@ -116,15 +105,17 @@ const L1_2: SubLevel = {
     return { ok: true };
   },
   hints: [
-    { text: 'קודם מצהירים על שני המשתנים (טיפוס, שם, `=`, ערך, `;`). אחר כך מדפיסים שתי שורות, וכל שורה מדביקה טקסט למשתנה עם `+`.' },
     {
-      text: 'השלד:',
-      code: 'string hackerName = "____";\nint clearance = __;\nConsole.WriteLine("Name: " + ________);\nConsole.WriteLine("Clearance: " + ________);',
+      "text": "קודם מצהירים: טיפוס, שם, `=`, ערך, `;`. אחר כך מדפיסים עם `+` שמחבר טקסט למשתנה."
     },
     {
-      text: 'הפתרון המלא (תחליף את Zero Cool בכינוי שלך):',
-      code: 'string hackerName = "Zero Cool";\nint clearance = 9;\nConsole.WriteLine("Name: " + hackerName);\nConsole.WriteLine("Clearance: " + clearance);',
+      "text": "השלד:",
+      "code": "string hackerName = \"____\";\nint clearance = __;\nConsole.WriteLine(\"Name: \" + ________);\nConsole.WriteLine(\"Clearance: \" + ________);"
     },
+    {
+      "text": "הפתרון המלא (תחליף את Zero Cool בכינוי שלך):",
+      "code": "string hackerName = \"Zero Cool\";\nint clearance = 9;\nConsole.WriteLine(\"Name: \" + hackerName);\nConsole.WriteLine(\"Clearance: \" + clearance);"
+    }
   ],
   aura: {
     intro: 'תעודה מזויפת? באמת? הסורק שלי מזהה זיופים טוב יותר ממה שאתה מזהה נקודה-פסיק חסרה.',
@@ -144,23 +135,11 @@ const L1_3: SubLevel = {
   tier: 'practice',
   title: 'עמדת המשמרת',
   brief:
-    'עמדת המשמרת של AURA עוצרת כל מי שעובר ושואלת אותו שתי שאלות. התשובות שהיא מצפה להן משתנות כל פעם, ' +
-    'אז אי אפשר לשנן אותן מראש. הרובוט צריך **להקשיב** למה שהעמדה אומרת, ולחזור על זה בפורמט שהיא אוהבת.',
-  rules: [
-    'העמדה שולחת שתי שורות: קודם שם קוד, ואחר כך אגף. ב"סיור" רואים מה היא שולחת בכל תרחיש',
-    'האישור היחיד שהיא מקבלת הוא שורה אחת בצורה הזאת: `AGENT Ghost IN SECTOR B7`, עם השם והאגף שהיא עצמה שלחה',
-    'כל תרחיש שולח שם ואגף אחרים, כך שתשובה שכתבת מראש לא תעבוד',
-  ],
-  tools: [
-    '`Console.ReadLine()` מחזיר את השורה **הבאה** שהעמדה שלחה (כ-`string`)',
-    '`Console.WriteLine(...)` משדר שורה',
-    '`string` ו-`+`, כמו בתת-השלב הקודם',
-  ],
+    "עמדת המשמרת של AURA עוצרת כל מי שעובר ושולחת לו שתי שורות: קודם **שם קוד**, ואחר כך **אגף**. בכל ניסיון היא שולחת שם ואגף אחרים.\nכל קריאה ל-`Console.ReadLine()` מחזירה את השורה הבאה שהעמדה שלחה. קרא את שתיהן לשני משתנים, וענה בשורה אחת בצורה הזאת: `AGENT Ghost IN SECTOR B7`.",
   objectives: [
-    'קרא את שם הסוכן: `string agent = Console.ReadLine();`',
-    'קרא את האגף בשורה נוספת: `string sector = Console.ReadLine();`',
-    'הדפס שורה אחת: `AGENT`, השם, `IN SECTOR`, האגף, עם רווח בין כל חלק',
-    'לדוגמה, אם נשלחו Ghost ו-B7, צריך להדפיס: `AGENT Ghost IN SECTOR B7`',
+    "קרא את שם הקוד ואת האגף עם שתי קריאות ל-`Console.ReadLine()`",
+    "הדפס `AGENT <שם> IN SECTOR <אגף>`",
+    "שים לב לרווחים בין המילים",
   ],
   starterCode: main('// Listen to the post, then answer it\n'),
   scene: 'gate',
@@ -217,27 +196,14 @@ const L1_4: SubLevel = {
   tier: 'boss',
   title: 'בוס: מחולל הטוקנים',
   brief:
-    'הליבה החיצונית של AURA שולחת **טוקן אבטחה**: מספר שמתחלף בכל ניסיון. ' +
-    'היא נפתחת רק למי שעונה לה עם הטוקן **הבא** בסדרה. ב"סיור" רואים אילו טוקנים היא שולחת.',
-  rules: [
-    'הנוסחה הסודית, שדלפה מהמהנדסים של AURA: הטוקן הבא = טוקן × 2 + 7',
-    'התשובה נשלחת בצורה `TOKEN: <מספר>`',
-    'הטרמינל שולח את הטוקן כ**טקסט**, ו-C# לא עושה חשבון עם טקסט',
-    'כל ניסיון מגיע עם טוקן אחר, אז אי אפשר לנחש תשובה',
-  ],
-  tools: [
-    '`Console.ReadLine()` מחזיר את השורה שהטרמינל שלח (`string`)',
-    '`int.Parse(טקסט)` הופך טקסט כמו `"42"` למספר `42`',
-    '`*`, `+` ו-`( )` עושים חשבון, בדיוק כמו במתמטיקה',
-  ],
+    "הטרמינל של AURA שולח **טוקן אבטחה** (מספר) — הרובוט קורא אותו עם `Console.ReadLine()`.\nכדי לעבור, צריך לחשב את הטוקן הבא לפי הנוסחה הסודית: **טוקן × 2 + 7** ולהדפיס `TOKEN: ` ואחריו התוצאה.\nזהירות: `ReadLine` מחזיר **טקסט**. השער יבדוק את הקוד שלך עם כמה טוקנים שונים — אז אין טעם \"לנחש\" תשובה.",
   objectives: [
-    'קרא את הטוקן: `string raw = Console.ReadLine();`',
-    'המר אותו למספר: `int token = int.Parse(raw);`',
-    'חשב את הטוקן הבא: `token * 2 + 7`',
-    'הדפס `TOKEN: ` ואחריו התוצאה. לדוגמה, עבור 1000: `TOKEN: 2007`',
-    'טיפ: שים סוגריים סביב החישוב בתוך ה-`WriteLine`',
+    "קרא את הטוקן מהטרמינל עם `Console.ReadLine()`",
+    "המר אותו למספר עם `int.Parse(...)`",
+    "חשב טוקן × 2 + 7",
+    "הדפס למשל: `TOKEN: 2007` (עבור הטוקן 1000)",
   ],
-  starterCode: main('// Crack the token generator\n'),
+  starterCode: "using System;\n\nclass HackProtocol\n{\n    static void Main()\n    {\n        // Read the token, calculate, print\n\n    }\n}\n",
   scene: 'gate',
   sceneConfig: { prompt: 'ROTATING TOKEN CHALLENGE', gateLabel: 'CORE ACCESS 04', showInput: true },
   api: {},
@@ -267,15 +233,17 @@ const L1_4: SubLevel = {
     return defaultValidate(ctx);
   },
   hints: [
-    { text: 'שלושה שלבים: לקרוא (`ReadLine`), להמיר (`int.Parse`), ואז לחשב ולהדפיס. ושים לב: כשמחברים מחרוזת ומספר, סוגריים מצילים חיים.' },
     {
-      text: 'השלד:',
-      code: 'string raw = Console.ReadLine();\nint token = int.Parse(___);\nint next = token * _ + _;\nConsole.WriteLine("TOKEN: " + ____);',
+      "text": "שלושה שלבים: לקרוא (`ReadLine`), להמיר (`int.Parse`), לחשב ולהדפיס. ושים לב — כשמחברים מחרוזת ומספר, סוגריים מצילים חיים."
     },
     {
-      text: 'הפתרון המלא:',
-      code: 'string raw = Console.ReadLine();\nint token = int.Parse(raw);\nint next = token * 2 + 7;\nConsole.WriteLine("TOKEN: " + next);',
+      "text": "השלד:",
+      "code": "string raw = Console.ReadLine();\nint token = int.Parse(___);\nint next = token * _ + _;\nConsole.WriteLine(\"TOKEN: \" + ____);"
     },
+    {
+      "text": "הפתרון המלא:",
+      "code": "string raw = Console.ReadLine();\nint token = int.Parse(raw);\nint next = token * 2 + 7;\nConsole.WriteLine(\"TOKEN: \" + next);"
+    }
   ],
   aura: {
     intro: 'הטוקנים שלי מתחלפים כל הזמן. הנוסחה סודית... טוב, היא דלפה לתדריך. אבל אתה בטח לא קורא תדריכים.',
@@ -313,32 +281,19 @@ const scan = (i: number, color: string, actions: string[]) => ({
   scene: { color },
 });
 
-const TOOL_COLOR = '`Sensor.ReadColor()` מחזיר את צבע הלייזר כטקסט, בדיוק כמו שהוא כתוב על הפולט שבזירה';
-const TOOL_SHIELD = '`Robot.Shield();` מפעיל מגן אנרגיה סביב הרובוט (שורף הרבה סוללה)';
-const TOOL_DASH = '`Robot.Dash();` היא ריצה מהירה דרך המסדרון אל היציאה';
-const TOOL_JUMP = '`Robot.Jump();` היא קפיצה גבוהה **מעל** מה שעל הרצפה, אל הצד השני';
 
 const L2_1: SubLevel = {
   id: '2-1',
   tier: 'warmup',
   title: 'מסדרון הלייזר',
   brief:
-    'מסדרון שמגן עליו מסך לייזר שמחליף צבע בכל סריקה. החיישן של הרובוט מזהה את הצבע, ' +
-    'הצעדים למטה מסבירים בדיוק מה לעשות בכל צבע.',
-  rules: [
-    '🔴 לייזר אדום שורף כל מה שעובר דרכו, חוץ ממה שמוגן במגן אנרגיה',
-    '🟢 לייזר ירוק הוא רק קרן סריקה ולא מזיק',
-    '🔋 המגן שורף סוללה. AURA תצחק עליך אם תדליק אותו כשאין צורך',
-    'בכל סריקה הרובוט חייב להגיע אל היציאה',
-  ],
-  tools: [TOOL_COLOR, TOOL_SHIELD, TOOL_DASH, '`if (תנאי) { ... }` מריץ את הבלוק רק כשהתנאי נכון. משווים עם `==`'],
+    "מסדרון שמגן עליו מסך לייזר. החיישן `Sensor.ReadColor()` מחזיר את צבע הלייזר כטקסט: `\"RED\"` או `\"GREEN\"`.\nלייזר **אדום** שורף — צריך להפעיל מגן `Robot.Shield();` **לפני** שעוברים. לייזר **ירוק** בטוח.\nבכל מקרה, בסוף הרובוט עובר עם `Robot.Dash();`. השתמש ב-`if` ובהשוואה `==`.",
   objectives: [
-    'הצבע כבר נקרא למשתנה: `string color = Sensor.ReadColor();`',
-    'אם הצבע הוא `"RED"`, הפעל מגן: `Robot.Shield();`',
-    'בכל מקרה, בסוף: `Robot.Dash();`',
-    'משווים עם `==` (שני סימני שווה): `if (color == "RED") { ... }`',
+    "אם הצבע הוא `\"RED\"` — הפעל `Robot.Shield();`",
+    "תמיד בסוף — `Robot.Dash();`",
+    "השוואה עושים עם `==` (שני סימני שווה!)",
   ],
-  starterCode: main('string color = Sensor.ReadColor();\n\n'),
+  starterCode: "using System;\n\nclass HackProtocol\n{\n    static void Main()\n    {\n        string color = Sensor.ReadColor();\n\n        // if the laser is RED -> Robot.Shield();\n\n        Robot.Dash();\n\n    }\n}\n",
   scene: 'lasers',
   api: { Robot: ['Dash', 'Shield'], Sensor: { ReadColor: 'string' } },
   tests: [scan(0, 'RED', ['Shield', 'Dash']), scan(1, 'GREEN', ['Dash']), scan(2, 'RED', ['Shield', 'Dash'])],
@@ -350,12 +305,17 @@ const L2_1: SubLevel = {
     return actionsValidate('ReadColor')(ctx);
   },
   hints: [
-    { text: 'באיזה צבע צריך מגן? `if (תנאי) { ... }` מריץ את מה שבסוגריים המסולסלים רק אם התנאי נכון. ומה הרובוט עושה בכל מקרה, לא משנה מה הצבע?' },
-    { text: 'השלם:', code: 'if (color == "___")\n{\n    Robot.______();\n}\nRobot.____();' },
     {
-      text: 'הפתרון המלא:',
-      code: 'string color = Sensor.ReadColor();\n\nif (color == "RED")\n{\n    Robot.Shield();\n}\n\nRobot.Dash();',
+      "text": "`if (תנאי) { ... }` — מה שבתוך הסוגריים המסולסלים רץ רק אם התנאי נכון. בודקים אם `color` שווה ל-`\"RED\"`."
     },
+    {
+      "text": "השלם:",
+      "code": "if (color == \"___\")\n{\n    Robot.______();\n}"
+    },
+    {
+      "text": "הפתרון המלא:",
+      "code": "string color = Sensor.ReadColor();\n\nif (color == \"RED\")\n{\n    Robot.Shield();\n}\n\nRobot.Dash();"
+    }
   ],
   aura: {
     intro: 'ברוך הבא למסדרון הלייזר. חלק מהצבעים שורפים, חלק לא. כן, אפילו אתה יכול להבין את זה. כנראה.',
@@ -369,36 +329,29 @@ const L2_2: SubLevel = {
   tier: 'practice',
   title: 'מבוך הצבעים',
   brief:
-    'AURA שדרגה את המסדרון: עכשיו יש כמה סוגי לייזרים, וכל אחד עוצר את הרובוט בדרך אחרת. ' +
-    'לכל צבע יש דרך מעבר משלו, והיא כתובה בצעדים למטה.',
-  rules: [
-    '🔴 אדום הוא מסך לייזר מלא, מהתקרה עד הרצפה. שורף כל מה שלא מוגן',
-    '🔵 כחול הוא קרניים נמוכות, צמודות לרצפה. מגן לא עוזר נגדן וריצה דרכן מפעילה את המלכודת, אבל הן מספיק נמוכות כדי לעבור **מעליהן**',
-    '🟢 ירוק או פולט כבוי: אין סכנה',
-    'בכל סריקה הרובוט חייב להגיע לצד השני, ומגן מיותר הוא בזבוז',
-  ],
-  tools: [TOOL_COLOR, TOOL_SHIELD, TOOL_DASH, TOOL_JUMP, '`if` / `else if` / `else` בודקים כמה מקרים לפי הסדר'],
+    "AURA שדרגה את המערכת. עכשיו יש שלושה מצבים:\n🔴 `\"RED\"` — מסך לייזר מלא: `Robot.Shield();` ואז `Robot.Dash();`\n🔵 `\"BLUE\"` — קרני לייזר נמוכות על הרצפה: קופצים מעליהן עם `Robot.Jump();` (בלי Dash!)\n⚪ כל מצב אחר — `Robot.Dash();` בלבד.\nהשתמש ב-`if` / `else if` / `else`.",
   objectives: [
-    '`"RED"`: קודם `Robot.Shield();` ואז `Robot.Dash();`',
-    '`"BLUE"`: רק `Robot.Jump();` (בלי Dash)',
-    'כל צבע אחר (ירוק או כבוי): רק `Robot.Dash();`',
-    'כתוב את זה עם `if` / `else if` / `else`',
+    "`RED` → Shield ואז Dash",
+    "`BLUE` → Jump בלבד",
+    "כל השאר (`else`) → Dash בלבד",
   ],
-  starterCode: main('string color = Sensor.ReadColor();\n\n'),
+  starterCode: "using System;\n\nclass HackProtocol\n{\n    static void Main()\n    {\n        string color = Sensor.ReadColor();\n\n\n    }\n}\n",
   scene: 'lasers',
   api: { Robot: ['Dash', 'Shield', 'Jump'], Sensor: { ReadColor: 'string' } },
   tests: [scan(0, 'RED', ['Shield', 'Dash']), scan(1, 'BLUE', ['Jump']), scan(2, 'GREEN', ['Dash']), scan(3, 'OFF', ['Dash'])],
   validate: actionsValidate('ReadColor'),
   hints: [
-    { text: 'יש כאן שלושה מקרים שונים: אדום, כחול, וכל השאר. `else if` בודק תנאי נוסף רק אם הקודם לא התקיים, ו-`else` בסוף תופס את כל מה שנשאר.' },
     {
-      text: 'השלד:',
-      code: 'if (color == "RED")\n{\n    // ...\n}\nelse if (color == "____")\n{\n    // ...\n}\nelse\n{\n    // ...\n}',
+      "text": "`else if` בודק תנאי נוסף רק אם הקודם לא התקיים. `else` בסוף תופס את כל מה שנשאר."
     },
     {
-      text: 'הפתרון המלא:',
-      code: 'string color = Sensor.ReadColor();\n\nif (color == "RED")\n{\n    Robot.Shield();\n    Robot.Dash();\n}\nelse if (color == "BLUE")\n{\n    Robot.Jump();\n}\nelse\n{\n    Robot.Dash();\n}',
+      "text": "השלד:",
+      "code": "if (color == \"RED\")\n{\n    // ...\n}\nelse if (color == \"____\")\n{\n    // ...\n}\nelse\n{\n    // ...\n}"
     },
+    {
+      "text": "הפתרון המלא:",
+      "code": "string color = Sensor.ReadColor();\n\nif (color == \"RED\")\n{\n    Robot.Shield();\n    Robot.Dash();\n}\nelse if (color == \"BLUE\")\n{\n    Robot.Jump();\n}\nelse\n{\n    Robot.Dash();\n}"
+    }
   ],
   aura: {
     intro: 'שלושה סוגי לייזרים! שלושה! המוח האנושי הממוצע מתקשה כבר עם שניים. אני נהנית מראש.',
@@ -421,20 +374,11 @@ const L2_3: SubLevel = {
   tier: 'practice',
   title: 'לייזר החום',
   brief:
-    'AURA התקינה פולט חדש: לייזר **צהוב** של חום. עכשיו יש שני צבעים שגורמים לאותה בעיה בדיוק. ' +
-    'מתכנת טוב לא כותב את אותו בלוק פעמיים. אפשר לבדוק שני תנאים בבת אחת.',
-  rules: [
-    '🔴 אדום ו-🟡 צהוב: שניהם מסכי לייזר מלאים ששורפים כל מה שלא מוגן',
-    '🔵 כחול: קרניים נמוכות על הרצפה (אפשר לעבור מעליהן)',
-    '🟢 ירוק: קרן סריקה לא מזיקה',
-    'המגן שורף סוללה, אז מדליקים אותו רק כשבאמת צריך',
-  ],
-  tools: [TOOL_COLOR, TOOL_SHIELD, TOOL_DASH, TOOL_JUMP, '`||` פירושו "או": `a || b` נכון אם לפחות אחד מהשניים נכון'],
+    "AURA התקינה פולט חדש: לייזר **צהוב** של חום, ששורף בדיוק כמו האדום.\n🔴 `\"RED\"` או 🟡 `\"YELLOW\"`: `Robot.Shield();` ואז `Robot.Dash();`\n🔵 `\"BLUE\"`: `Robot.Jump();`\n⚪ כל מצב אחר: `Robot.Dash();`\nבמקום לכתוב את אותו בלוק פעמיים, אפשר לבדוק שני צבעים בבת אחת עם `||`, שפירושו \"או\".",
   objectives: [
-    '`"RED"` או `"YELLOW"`: `Robot.Shield();` ואז `Robot.Dash();`',
-    '`"BLUE"`: `Robot.Jump();`',
-    'כל השאר: `Robot.Dash();`',
-    'טיפ: `if (color == "RED" || color == "YELLOW")` בודק את שני הצבעים בבת אחת',
+    "`RED` או `YELLOW` → Shield ואז Dash",
+    "`BLUE` → Jump",
+    "כל השאר → Dash",
   ],
   starterCode: main('string color = Sensor.ReadColor();\n\n'),
   scene: 'lasers',
@@ -481,32 +425,14 @@ const L2_4: SubLevel = {
   tier: 'boss',
   title: 'בוס: כור הלייזר העמוס',
   brief:
-    'שומר הכור של AURA. כאן הלייזרים מקבלים אנרגיה ישירות מהכור, ובעוצמה גבוהה מספיק הם שוברים כל מגן. ' +
-    'בכל סריקה העוצמה מוצגת על הפולט (`PWR`). הצעדים למטה אומרים מה עושים בכל מצב.',
-  rules: [
-    '🔴 אדום: מסך לייזר שורף. מגן אנרגיה מחזיק עד עוצמה של **80% כולל**',
-    '🔴 מעל 80% המגן נמס. הדרך היחידה לעבור היא לשבש את הפולט',
-    'פולט משובש כבר לא שורף, אז אין צורך גם במגן',
-    '🔵 כחול: קרניים נמוכות על הרצפה. 🟢 ירוק: לא מזיק',
-    'פולס EMP יקר מאוד. AURA מענישה על בזבוז',
-  ],
-  tools: [
-    TOOL_COLOR,
-    '`Sensor.ReadPower()` מחזיר את עוצמת הלייזר (`int`, בין 0 ל-100)',
-    TOOL_SHIELD,
-    TOOL_DASH,
-    TOOL_JUMP,
-    '`Robot.EMP();` הוא פולס אלקטרומגנטי שמשבש את הפולט',
-    '`&&` פירושו "וגם": שני התנאים חייבים להתקיים',
-  ],
+    "שומר הכור של AURA. עכשיו יש שני חיישנים: `Sensor.ReadColor()` (טקסט) ו-`Sensor.ReadPower()` (מספר 0–100).\n🔴 אדום ועוצמה **מעל 80** — המגן לא יחזיק! צריך לשבש את הפולט עם `Robot.EMP();` ואז `Robot.Dash();`\n🔴 אדום ועוצמה **80 ומטה** — `Robot.Shield();` ואז `Robot.Dash();`\n🔵 כחול — `Robot.Jump();`\n⚪ אחרת — `Robot.Dash();`\nרמז מבצעי: `&&` פירושו \"וגם\". שים לב לגבול — 80 בדיוק זה עוד מגן.",
   objectives: [
-    'קרא את שני החיישנים: `string color = Sensor.ReadColor();` ו-`int power = Sensor.ReadPower();`',
-    'אדום **וגם** עוצמה מעל 80: `Robot.EMP();` ואז `Robot.Dash();`',
-    'אדום עם עוצמה 80 ומטה: `Robot.Shield();` ואז `Robot.Dash();`',
-    'כחול: `Robot.Jump();`. כל השאר: `Robot.Dash();`',
-    'שים לב: 80 בדיוק זה עוד מגן. כלומר `power > 80`, לא `>=`',
+    "קרא את שני החיישנים",
+    "אדום + עוצמה > 80 → EMP, Dash",
+    "אדום + עוצמה ≤ 80 → Shield, Dash",
+    "כחול → Jump  |  אחרת → Dash",
   ],
-  starterCode: main('// Survive the reactor\n'),
+  starterCode: "using System;\n\nclass HackProtocol\n{\n    static void Main()\n    {\n        // Read both sensors and survive the reactor\n\n    }\n}\n",
   scene: 'lasers',
   sceneConfig: { boss: true },
   api: { Robot: ['Dash', 'Shield', 'Jump', 'EMP'], Sensor: { ReadColor: 'string', ReadPower: 'int' } },
@@ -531,16 +457,16 @@ const L2_4: SubLevel = {
   },
   hints: [
     {
-      text: 'יש כאן ארבעה מקרים. המסוכן ביותר הוא אדום **וגם** חזק, ולכן בודקים אותו ראשון. `&&` מחבר שני תנאים.',
+      "text": "אפשר לחבר שני תנאים עם `&&` (וגם). סדר חשוב: בדוק קודם את המקרה הכי מסוכן (אדום וחזק)."
     },
     {
-      text: 'השלד:',
-      code: 'string color = Sensor.ReadColor();\nint power = Sensor.ReadPower();\n\nif (color == "RED" && power > __)\n{\n    // ...\n}\nelse if (color == "RED")\n{\n    // ...\n}\nelse if (...)\n...',
+      "text": "השלד:",
+      "code": "string color = Sensor.ReadColor();\nint power = Sensor.ReadPower();\n\nif (color == \"RED\" && power > __)\n{\n    // ...\n}\nelse if (color == \"RED\")\n{\n    // ...\n}\nelse if (...)\n..."
     },
     {
-      text: 'הפתרון המלא:',
-      code: 'string color = Sensor.ReadColor();\nint power = Sensor.ReadPower();\n\nif (color == "RED" && power > 80)\n{\n    Robot.EMP();\n    Robot.Dash();\n}\nelse if (color == "RED")\n{\n    Robot.Shield();\n    Robot.Dash();\n}\nelse if (color == "BLUE")\n{\n    Robot.Jump();\n}\nelse\n{\n    Robot.Dash();\n}',
-    },
+      "text": "הפתרון המלא:",
+      "code": "string color = Sensor.ReadColor();\nint power = Sensor.ReadPower();\n\nif (color == \"RED\" && power > 80)\n{\n    Robot.EMP();\n    Robot.Dash();\n}\nelse if (color == \"RED\")\n{\n    Robot.Shield();\n    Robot.Dash();\n}\nelse if (color == \"BLUE\")\n{\n    Robot.Jump();\n}\nelse\n{\n    Robot.Dash();\n}"
+    }
   ],
   aura: {
     intro: 'זה הכור שלי. העוצמה משתנה. הצבעים משתנים. רק דבר אחד לא משתנה: אתה הולך להתפוצץ. הרבה.',
