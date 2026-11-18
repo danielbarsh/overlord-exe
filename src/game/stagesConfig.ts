@@ -44,7 +44,11 @@ const L1_1: SubLevel = {
     'כל שידור הוא שורה אחת. רווח מיותר או אות חסרה, והשער נשאר סגור',
   ],
   tools: ['`Console.WriteLine("טקסט");` משדר שורת טקסט לעמדה. מה שבין המירכאות יוצא בדיוק כמו שכתבת'],
-  objectives: ['פתח את השער החיצוני'],
+  objectives: [
+    'בתוך `Main` כתוב את הפקודה `Console.WriteLine("...");`',
+    'בין המירכאות כתוב את מילת הקוד `OVERRIDE`, באותיות גדולות ובדיוק כך',
+    'אל תשכח `;` בסוף השורה, ואז לחץ ▶ הרץ',
+  ],
   starterCode: main('// Write your code here\n'),
   scene: 'gate',
   sceneConfig: { prompt: 'TRANSMIT CODE: OVERRIDE', gateLabel: 'OUTER GATE 01' },
@@ -80,7 +84,12 @@ const L1_2: SubLevel = {
     '`int שם = 5;` היא קופסה שמחזיקה מספר שלם (בלי מירכאות)',
     '`"טקסט" + משתנה` מדביק טקסט לערך של משתנה בשורה אחת',
   ],
-  objectives: ['עבור את סורק התגים'],
+  objectives: [
+    'צור משתנה טקסט עם הכינוי שלך: `string hackerName = "Neo";`',
+    'צור משתנה מספר: `int clearance = 9;`',
+    'הדפס את השורה הראשונה: `Console.WriteLine("Name: " + hackerName);`',
+    'הדפס את השורה השנייה: `"Clearance: "` ואחריו המשתנה `clearance`',
+  ],
   starterCode: main('// Your fake badge\n'),
   scene: 'gate',
   sceneConfig: { prompt: 'BADGE: Name / Clearance 9', gateLabel: 'ID CHECKPOINT 02' },
@@ -147,7 +156,12 @@ const L1_3: SubLevel = {
     '`Console.WriteLine(...)` משדר שורה',
     '`string` ו-`+`, כמו בתת-השלב הקודם',
   ],
-  objectives: ['עבור את עמדת המשמרת בכל שלושת התרחישים'],
+  objectives: [
+    'קרא את שם הסוכן: `string agent = Console.ReadLine();`',
+    'קרא את האגף בשורה נוספת: `string sector = Console.ReadLine();`',
+    'הדפס שורה אחת: `AGENT`, השם, `IN SECTOR`, האגף, עם רווח בין כל חלק',
+    'לדוגמה, אם נשלחו Ghost ו-B7, צריך להדפיס: `AGENT Ghost IN SECTOR B7`',
+  ],
   starterCode: main('// Listen to the post, then answer it\n'),
   scene: 'gate',
   sceneConfig: { prompt: 'SHIFT LOG: AGENT + SECTOR', gateLabel: 'SHIFT POST 03', showInput: true },
@@ -216,7 +230,13 @@ const L1_4: SubLevel = {
     '`int.Parse(טקסט)` הופך טקסט כמו `"42"` למספר `42`',
     '`*`, `+` ו-`( )` עושים חשבון, בדיוק כמו במתמטיקה',
   ],
-  objectives: ['פרוץ את הליבה עם כל שלושת הטוקנים'],
+  objectives: [
+    'קרא את הטוקן: `string raw = Console.ReadLine();`',
+    'המר אותו למספר: `int token = int.Parse(raw);`',
+    'חשב את הטוקן הבא: `token * 2 + 7`',
+    'הדפס `TOKEN: ` ואחריו התוצאה. לדוגמה, עבור 1000: `TOKEN: 2007`',
+    'טיפ: שים סוגריים סביב החישוב בתוך ה-`WriteLine`',
+  ],
   starterCode: main('// Crack the token generator\n'),
   scene: 'gate',
   sceneConfig: { prompt: 'ROTATING TOKEN CHALLENGE', gateLabel: 'CORE ACCESS 04', showInput: true },
@@ -304,7 +324,7 @@ const L2_1: SubLevel = {
   title: 'מסדרון הלייזר',
   brief:
     'מסדרון שמגן עליו מסך לייזר שמחליף צבע בכל סריקה. החיישן של הרובוט מזהה את הצבע, ' +
-    'אבל **ההחלטה** מה לעשות איתו היא שלך. תסתכל בזירה איך כל צבע נראה.',
+    'הצעדים למטה מסבירים בדיוק מה לעשות בכל צבע.',
   rules: [
     '🔴 לייזר אדום שורף כל מה שעובר דרכו, חוץ ממה שמוגן במגן אנרגיה',
     '🟢 לייזר ירוק הוא רק קרן סריקה ולא מזיק',
@@ -312,7 +332,12 @@ const L2_1: SubLevel = {
     'בכל סריקה הרובוט חייב להגיע אל היציאה',
   ],
   tools: [TOOL_COLOR, TOOL_SHIELD, TOOL_DASH, '`if (תנאי) { ... }` מריץ את הבלוק רק כשהתנאי נכון. משווים עם `==`'],
-  objectives: ['עבור את כל הסריקות בשלום, בלי לבזבז סוללה'],
+  objectives: [
+    'הצבע כבר נקרא למשתנה: `string color = Sensor.ReadColor();`',
+    'אם הצבע הוא `"RED"`, הפעל מגן: `Robot.Shield();`',
+    'בכל מקרה, בסוף: `Robot.Dash();`',
+    'משווים עם `==` (שני סימני שווה): `if (color == "RED") { ... }`',
+  ],
   starterCode: main('string color = Sensor.ReadColor();\n\n'),
   scene: 'lasers',
   api: { Robot: ['Dash', 'Shield'], Sensor: { ReadColor: 'string' } },
@@ -345,7 +370,7 @@ const L2_2: SubLevel = {
   title: 'מבוך הצבעים',
   brief:
     'AURA שדרגה את המסדרון: עכשיו יש כמה סוגי לייזרים, וכל אחד עוצר את הרובוט בדרך אחרת. ' +
-    'עבור על כל התרחישים ב"סיור", תסתכל **איפה** הקרניים נמצאות, ותחליט איך עוברים כל אחד.',
+    'לכל צבע יש דרך מעבר משלו, והיא כתובה בצעדים למטה.',
   rules: [
     '🔴 אדום הוא מסך לייזר מלא, מהתקרה עד הרצפה. שורף כל מה שלא מוגן',
     '🔵 כחול הוא קרניים נמוכות, צמודות לרצפה. מגן לא עוזר נגדן וריצה דרכן מפעילה את המלכודת, אבל הן מספיק נמוכות כדי לעבור **מעליהן**',
@@ -353,7 +378,12 @@ const L2_2: SubLevel = {
     'בכל סריקה הרובוט חייב להגיע לצד השני, ומגן מיותר הוא בזבוז',
   ],
   tools: [TOOL_COLOR, TOOL_SHIELD, TOOL_DASH, TOOL_JUMP, '`if` / `else if` / `else` בודקים כמה מקרים לפי הסדר'],
-  objectives: ['עבור את כל 4 הסריקות'],
+  objectives: [
+    '`"RED"`: קודם `Robot.Shield();` ואז `Robot.Dash();`',
+    '`"BLUE"`: רק `Robot.Jump();` (בלי Dash)',
+    'כל צבע אחר (ירוק או כבוי): רק `Robot.Dash();`',
+    'כתוב את זה עם `if` / `else if` / `else`',
+  ],
   starterCode: main('string color = Sensor.ReadColor();\n\n'),
   scene: 'lasers',
   api: { Robot: ['Dash', 'Shield', 'Jump'], Sensor: { ReadColor: 'string' } },
@@ -400,7 +430,12 @@ const L2_3: SubLevel = {
     'המגן שורף סוללה, אז מדליקים אותו רק כשבאמת צריך',
   ],
   tools: [TOOL_COLOR, TOOL_SHIELD, TOOL_DASH, TOOL_JUMP, '`||` פירושו "או": `a || b` נכון אם לפחות אחד מהשניים נכון'],
-  objectives: ['עבור את כל 5 הסריקות'],
+  objectives: [
+    '`"RED"` או `"YELLOW"`: `Robot.Shield();` ואז `Robot.Dash();`',
+    '`"BLUE"`: `Robot.Jump();`',
+    'כל השאר: `Robot.Dash();`',
+    'טיפ: `if (color == "RED" || color == "YELLOW")` בודק את שני הצבעים בבת אחת',
+  ],
   starterCode: main('string color = Sensor.ReadColor();\n\n'),
   scene: 'lasers',
   api: { Robot: ['Dash', 'Shield', 'Jump'], Sensor: { ReadColor: 'string' } },
@@ -447,7 +482,7 @@ const L2_4: SubLevel = {
   title: 'בוס: כור הלייזר העמוס',
   brief:
     'שומר הכור של AURA. כאן הלייזרים מקבלים אנרגיה ישירות מהכור, ובעוצמה גבוהה מספיק הם שוברים כל מגן. ' +
-    'בכל סריקה העוצמה מוצגת על הפולט (`PWR`). עבור על הסריקות ב"סיור" ותחשוב מה עושים בכל אחת.',
+    'בכל סריקה העוצמה מוצגת על הפולט (`PWR`). הצעדים למטה אומרים מה עושים בכל מצב.',
   rules: [
     '🔴 אדום: מסך לייזר שורף. מגן אנרגיה מחזיק עד עוצמה של **80% כולל**',
     '🔴 מעל 80% המגן נמס. הדרך היחידה לעבור היא לשבש את הפולט',
@@ -464,7 +499,13 @@ const L2_4: SubLevel = {
     '`Robot.EMP();` הוא פולס אלקטרומגנטי שמשבש את הפולט',
     '`&&` פירושו "וגם": שני התנאים חייבים להתקיים',
   ],
-  objectives: ['שרוד את כל 5 הסריקות של הכור'],
+  objectives: [
+    'קרא את שני החיישנים: `string color = Sensor.ReadColor();` ו-`int power = Sensor.ReadPower();`',
+    'אדום **וגם** עוצמה מעל 80: `Robot.EMP();` ואז `Robot.Dash();`',
+    'אדום עם עוצמה 80 ומטה: `Robot.Shield();` ואז `Robot.Dash();`',
+    'כחול: `Robot.Jump();`. כל השאר: `Robot.Dash();`',
+    'שים לב: 80 בדיוק זה עוד מגן. כלומר `power > 80`, לא `>=`',
+  ],
   starterCode: main('// Survive the reactor\n'),
   scene: 'lasers',
   sceneConfig: { boss: true },

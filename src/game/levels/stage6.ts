@@ -57,14 +57,19 @@ const L6_1: SubLevel = {
   title: 'תת-מחלקה ראשונה',
   brief:
     'תהום הכור חוסמת את הדרך. ה-`BaseBot` של המורדים יודע רק ללכת, וזה לא יספיק. ' +
-    'במקום להעתיק את כל השרטוט שלו ולהוסיף לו מנוע, נבנה שרטוט **שיורש** ממנו. תסתכל בזירה מה מחכה בדרך, ומה כתוב על שלט ההזמנה של ההאנגר.',
+    'במקום להעתיק את כל השרטוט שלו ולהוסיף לו מנוע, נבנה שרטוט **שיורש** ממנו. בדרך יש תהום, ושלט ההאנגר מבקש JetBot בשם Falcon.',
   rules: [RULE_GAP, 'למטוס (`JetBot`) יש **כל** מה שיש ל-`BaseBot`, ובנוסף יכולת טיסה', 'ההאנגר משגר רק בוט שנקרא בשם שעל השלט'],
   tools: [
     '`class JetBot : BaseBot { ... }` יוצר מחלקה שיורשת את כל השדות והשיטות של `BaseBot`',
     '`Robot.Launch(bot);` מעלה את הבוט למסלול',
     '`Robot.Walk();` / `Robot.Fly();` חוצים את הקטע הבא במסלול (מתוך שיטות של הבוט)',
   ],
-  objectives: ['חצה את התהום עם הבוט שבהזמנה'],
+  objectives: [
+    'מתחת ל-`BaseBot` כתוב: `class JetBot : BaseBot { ... }`',
+    'בתוך `JetBot` כתוב שיטה: `public void Fly() { Robot.Fly(); }`',
+    'ב-`Main`: `JetBot jet = new JetBot();` ואז `jet.name = "Falcon";` (השדה `name` עבר בירושה)',
+    'שגר וטוס: `Robot.Launch(jet);` ואז `jet.Fly();`',
+  ],
   starterCode: withClasses(BASE_1 + '\n\n// TODO: class JetBot', '// Build the bot on the hangar sign, launch it, cross\n'),
   scene: 'chasm',
   api: { Robot: ['Launch', 'Walk', 'Fly'] },
@@ -143,7 +148,11 @@ const L6_2: SubLevel = {
     '`public JetBot(string name) : base(...)` הוא בנאי שמעביר ערכים לבנאי של ההורה',
     '`Robot.Launch(bot);`, `Robot.Fly();`',
   ],
-  objectives: ['כל שלושת ה-JetBots של ההאנגר חוצים את התהום'],
+  objectives: [
+    'בתוך `JetBot` כתוב בנאי: `public JetBot(string name) : base(name, 100) { }`',
+    'הבנאי מעביר להורה את השם ו-100 דלק',
+    'את ה-`Main` לא צריך לשנות: ההאנגר בונה את הבוטים בעצמו',
+  ],
   starterCode: withClasses(BASE_2 + '\n\n' + JET_2.replace('    public JetBot(string name) : base(name, 100)\n    {\n    }\n\n', '    // TODO: constructor\n\n'), '// The hangar runs its own Main (see recon).\n'),
   scene: 'chasm',
   api: { Robot: ['Launch', 'Walk', 'Fly'] },
@@ -248,7 +257,11 @@ const L6_3: SubLevel = {
     '`public override void Cross() { ... }` אצל הילד מחליף את הגרסה של ההורה, גם כשמחזיקים את הילד כ-`BaseBot`',
     '`Robot.Walk();`, `Robot.Fly();`, `Robot.Climb();`',
   ],
-  objectives: ['כל בוט חוצה את המעבר שלו', 'והחוליה המלאה חוצה את כל המסלול'],
+  objectives: [
+    'כתוב `class JetBot : BaseBot` עם `public override void Cross() { Robot.Fly(); }`',
+    'כתוב `class ClimbBot : BaseBot` עם `public override void Cross() { Robot.Climb(); }`',
+    'המילה `override` חובה. בלעדיה הבקר יקרא לגרסה של `BaseBot`, כלומר להליכה',
+  ],
   starterCode: withClasses(BASE_3 + '\n\n// TODO: class JetBot\n\n// TODO: class ClimbBot', '// The crossing controller runs its own Main (see recon).\n'),
   scene: 'chasm',
   api: { Robot: ['Launch', 'Walk', 'Fly', 'Climb'] },
@@ -368,7 +381,7 @@ const L6_4: SubLevel = {
   title: 'בוס: חציית הכור',
   brief:
     'זה הבוס של שכבת התהום: מסלול של תהומות וגשרים, באורכים שמשתנים בכל ניסיון. ה-`Main` כבר כתוב: הוא מחזיק את המטוס כ-`BaseBot` וקורא ל-`Cross(gap)` לכל קטע. ' +
-    'אתה כותב את `JetBot`. עבור על המסלולים ב"סיור" ותחשוב מתי צריך לתדלק.',
+    'אתה כותב את `JetBot`, והצעדים למטה מסבירים מתי טסים, מתי הולכים ומתי מתדלקים.',
   rules: [
     'פער 0 הוא גשר: JetBot הולך עליו בדיוק כמו כל `BaseBot`',
     'טיסה מעל תהום ברוחב N עולה N × 10 דלק',
@@ -382,7 +395,13 @@ const L6_4: SubLevel = {
     '`base.Cross(gap);` מפעיל את הגרסה של ההורה מתוך הילד',
     '`Robot.Fly();`, `Robot.Refuel();` (`Robot.Walk();` כבר אצל ההורה)',
   ],
-  objectives: ['חצה את כל ארבעת המסלולים בלי ליפול ובלי לתדלק סתם'],
+  objectives: [
+    'כתוב `class JetBot : BaseBot` עם בנאי `public JetBot(string name) : base(name, 100) { }`',
+    'דרוס את `public override void Cross(int gap)`',
+    'אם `gap == 0`: `base.Cross(gap);` ואז `return;`',
+    'אם `fuel < gap * 10`: `Robot.Refuel();` ואז `fuel = 100;`',
+    'בסוף: `Robot.Fly();` ואז `fuel = fuel - gap * 10;`',
+  ],
   starterCode: withClasses(BASE_4 + '\n\n// TODO: class JetBot', MAIN_4),
   scene: 'chasm',
   sceneConfig: { boss: true },

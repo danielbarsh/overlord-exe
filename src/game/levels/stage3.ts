@@ -49,14 +49,18 @@ const L3_1: SubLevel = {
   title: 'פולס אחרי פולס',
   brief:
     'ברוכים הבאים למפעל הרחפנים של AURA. הפס שמול הרובוט כבר עמוס ברחפנים. ' +
-    'תסתכל בזירה ותספור כמה יש, ואז תשבית את כולם.',
+    'יש עליו 5 רחפנים, וצריך להשבית את כולם עם לולאה אחת.',
   rules: [
     'כל רחפן נופל מפולס EMP אחד בדיוק',
     'פולס שנורה כשאין רחפן הוא פולס מבוזבז',
     RULE_TIRED,
   ],
   tools: [TOOL_EMP, TOOL_FOR],
-  objectives: ['השבת את כל הרחפנים שעל הפס'],
+  objectives: [
+    'על הפס יש **5** רחפנים, וכל אחד צריך פולס אחד',
+    'כתוב לולאה: `for (int i = 0; i < 5; i++) { ... }`',
+    'בתוך הלולאה כתוב `Robot.EMP();` פעם אחת בלבד',
+  ],
   starterCode: main('// Count the drones on the belt. Then take them all down.\n'),
   scene: 'assembly',
   api: API_EMP,
@@ -101,7 +105,12 @@ const L3_2: SubLevel = {
     '`Console.WriteLine(...)` כותב שורה לטרמינל',
     TOOL_FOR + '. משתנה הלולאה `i` משתנה בכל סיבוב, ואפשר להשתמש בו',
   ],
-  objectives: ['נקה את הפס ושלח דוח מלא, בכל שלושת התרחישים'],
+  objectives: [
+    'מספר הרחפנים כבר נקרא למשתנה `count`',
+    'כתוב לולאת `for` שרצה `count` פעמים',
+    'בכל סיבוב: `Robot.EMP();` ואז הדפס `DRONE <מספר> DOWN`',
+    'המספור מתחיל מ-1: `DRONE 1 DOWN`, `DRONE 2 DOWN`...',
+  ],
   starterCode: main('int count = Sensor.CountDrones();\n\n'),
   scene: 'assembly',
   api: { Robot: ['EMP'], Sensor: { CountDrones: 'int' } },
@@ -162,7 +171,7 @@ const L3_3: SubLevel = {
   title: 'רחפני הטעיה',
   brief:
     'AURA למדה לרמות: בין הרחפנים האמיתיים היא מפזרת **הולוגרמות**, רחפנים מזויפים ושקופים שמהבהבים. ' +
-    'עבור על הפסים ב"סיור" ותסתכל טוב על מה שעליהם.',
+    'את רחפני ההטעיה מזהים לפי החיישן: הוא מחזיר `"DECOY"`.',
   rules: [
     '🛸 רחפן אמיתי (`"SCOUT"`) נופל מפולס אחד',
     '👻 הולוגרמה (`"DECOY"`): פולס עובר דרכה ומתבזבז. היא לא מסוכנת, אז פשוט לא יורים בה',
@@ -176,7 +185,13 @@ const L3_3: SubLevel = {
     TOOL_EMP + ' (שאינו הולוגרמה)',
     '`for`, `if`, ומשתנה `int` שאפשר להגדיל ב-1 עם `++`',
   ],
-  objectives: ['השבת כל רחפן אמיתי, בלי לבזבז אף פולס על הולוגרמה', 'דווח כמה הולוגרמות היו על הפס'],
+  objectives: [
+    'צור מונה: `int decoys = 0;`',
+    'כתוב לולאה שרצה `count` פעמים, פעם אחת לכל עצם על הפס',
+    'בכל סיבוב קרא את העצם הבא: `string drone = Sensor.NextDrone();`',
+    'אם הוא `"DECOY"`, הוסף 1 למונה (`decoys++;`). אחרת: `Robot.EMP();`',
+    'אחרי הלולאה הדפס `DECOYS: ` ואחריו המונה',
+  ],
   starterCode: main('int count = Sensor.CountDrones();\n\n'),
   scene: 'assembly',
   api: { Robot: ['EMP'], Sensor: { CountDrones: 'int', NextDrone: 'string' } },
@@ -262,7 +277,13 @@ const L3_4: SubLevel = {
     '`while (תנאי) { ... }` חוזר כל עוד התנאי נכון. מתאים כשלא יודעים מראש כמה פעמים',
     '`for` ו-`if`',
   ],
-  objectives: ['נקה כל פס וברח, בכל ארבעת התרחישים'],
+  objectives: [
+    'הרחפן הראשון כבר נקרא למשתנה `drone`',
+    'כתוב `while (drone != "EMPTY") { ... }`',
+    'בתוך הלולאה: אם `"TANK"`, ירה 3 פולסים (לולאת `for` קטנה). אחרת פולס אחד',
+    'בסוף כל סיבוב קרא את הבא: `drone = Sensor.NextDrone();`',
+    'אחרי הלולאה: `Robot.Dash();`',
+  ],
   starterCode: main('string drone = Sensor.NextDrone();\n\n'),
   scene: 'assembly',
   sceneConfig: { boss: true },

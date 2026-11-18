@@ -112,7 +112,12 @@ const L4_1: SubLevel = {
     '`bot.name = "...";`: הנקודה נותנת גישה לשדה של הבוט',
     '`Robot.Deploy(bot);` שולח את הבוט למפעל',
   ],
-  objectives: ['שלח בוט שתואם להזמנה שעל הלוח'],
+  objectives: [
+    'צור בוט: `RebelBot bot = new RebelBot();`',
+    'תן לו שם: `bot.name = "Spark";`',
+    'תן לו כוח: `bot.power = 50;`',
+    'שלח אותו: `Robot.Deploy(bot);`',
+  ],
   starterCode: withClasses(BLUEPRINT_1, '// Build what the order board asks for, and deploy it\n'),
   scene: 'blueprint',
   api: { Robot: ['Deploy'] },
@@ -151,7 +156,7 @@ const L4_2: SubLevel = {
   title: 'צוות מורדים',
   brief:
     'הפעם **אתה** כותב את השרטוט. AURA השאירה רק מחלקה ריקה, ולוח הזמנות עם צוות שלם. ' +
-    'תסתכל על הלוח: מה כל בוט צריך שיהיה לו?',
+    'הצעדים למטה מפרטים את השדות ואת הבוטים שצריך לבנות.',
   rules: [
     'המפעל מזהה שדות לפי השם: `name` (טקסט), `power` (מספר שלם), `role` (טקסט)',
     'שדה בלי `public` נעול מבחוץ, ואי אפשר לשנות אותו מתוך `Main`',
@@ -159,7 +164,12 @@ const L4_2: SubLevel = {
     RULE_SEPARATE,
   ],
   tools: ['`public string name;` מגדיר שדה בתוך מחלקה (סוג, שם, `;`)', '`new`, `.` ו-`Robot.Deploy(...)`, כמו בתת-השלב הקודם'],
-  objectives: ['שלח את כל הצוות שעל לוח ההזמנות'],
+  objectives: [
+    'בתוך המחלקה `RebelBot` כתוב 3 שדות: `public string name;`, `public int power;`, `public string role;`',
+    'ב-`Main` צור 3 בוטים, וכל אחד עם `new` משלו',
+    'Spark: כוח 40, תפקיד `SCOUT`. Tank: כוח 90, `DEFENDER`. Byte: כוח 60, `HACKER`',
+    'שלח אותם בסדר הזה עם `Robot.Deploy(...)`',
+  ],
   starterCode: withClasses('class RebelBot\n{\n    // TODO: the fields every bot needs\n}', '// Build and deploy the squad on the order board\n'),
   scene: 'blueprint',
   api: { Robot: ['Deploy'] },
@@ -203,7 +213,7 @@ const L4_3: SubLevel = {
   title: 'פס ההרכבה',
   brief:
     'המורדים צריכים סיירים, וכל שער מבקש כמות אחרת. לבנות כל בוט ביד לא יעבוד כשלא יודעים מראש כמה צריך. ' +
-    'עבור על לוחות ההזמנות ב"סיור" והשווה ביניהם.',
+    'לולאה אחת תבנה בדיוק כמה שצריך.',
   rules: [
     'לוח ההזמנות של כל שער מראה בדיוק אילו בוטים הוא רוצה. יש חוקיות בשמות ובכוח',
     'כמות הבוטים משתנה משער לשער',
@@ -215,7 +225,13 @@ const L4_3: SubLevel = {
     '`for`. משתנה הלולאה `i` משתנה בכל סיבוב',
     '`"SCOUT-" + i` מדביק מספר לטקסט',
   ],
-  objectives: ['מלא את ההזמנה של כל שלושת השערים'],
+  objectives: [
+    'מספר הבוטים כבר נקרא למשתנה `size`',
+    'כתוב לולאה: `for (int i = 1; i <= size; i++)`',
+    'בתוך הלולאה צור בוט **חדש**: `RebelBot bot = new RebelBot();`',
+    'שם: `"SCOUT-" + i`. כוח: `i * 10`. תפקיד: `"SCOUT"`',
+    'ושלח אותו: `Robot.Deploy(bot);`',
+  ],
   starterCode: withClasses(BLUEPRINT_2, 'int size = Sensor.SquadSize();\n\n'),
   scene: 'blueprint',
   api: { Robot: ['Deploy'], Sensor: { SquadSize: 'int' } },
@@ -296,7 +312,7 @@ const L4_4: SubLevel = {
   brief:
     'שער הליבה של AURA דורש **צבא**, וכל שער רוצה צבא בגודל אחר. ' +
     'הפעם המפעל מקבל רק בוטים שנבנו עם **בנאי** (constructor): פונקציה בתוך השרטוט שרצה ברגע ה-`new` ומסדרת את הבוט לבד. ' +
-    'עבור על לוחות ההזמנות ב"סיור" ומצא את החוקיות.',
+    'הצעדים למטה מסבירים איך לבנות את הבנאי ואת הלולאה.',
   rules: [
     'לוח ההזמנות מראה את הצבא שכל שער רוצה. יש חוקיות בשמות ובכוח, וכדאי להשוות בין השערים',
     'התפקיד נקבע לפי הכוח: בוט עם כוח 60 ומעלה הוא `"HEAVY"`, וכל השאר `"LIGHT"`. את ההחלטה הזאת מקבל **הבנאי**, לא `Main`',
@@ -309,7 +325,12 @@ const L4_4: SubLevel = {
     '`Sensor.SquadSize()` מחזיר כמה בוטים השער מבקש (`int`)',
     '`for`, `if`, `>=`',
   ],
-  objectives: ['בנה ושלח את הצבא של כל שלושת השערים'],
+  objectives: [
+    'במחלקה כתוב בנאי: `public RebelBot(string name, int power) { ... }`',
+    'בבנאי שמור את הערכים: `this.name = name;` ו-`this.power = power;`',
+    'בבנאי קבע תפקיד: כוח 60 ומעלה → `role = "HEAVY";`, אחרת `role = "LIGHT";`',
+    'ב-`Main`: לולאה מ-1 עד `size`, ובכל סיבוב `new RebelBot("UNIT-" + i, i * 20)` ואז `Robot.Deploy(...)`',
+  ],
   starterCode: withClasses(
     'class RebelBot\n{\n    public string name;\n    public int power;\n    public string role;\n\n    // TODO: constructor\n}',
     'int size = Sensor.SquadSize();\n\n',

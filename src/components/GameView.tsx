@@ -134,36 +134,42 @@ export function GameView({ engine, current, aura, success, running, onNext, onSt
           <span className="text-white/40">{briefOpen ? '▾' : '▴'}</span>
         </button>
         {briefOpen && (
-          <div className="max-h-[26vh] overflow-auto px-4 pb-3 text-[13.5px] leading-relaxed text-white/85">
+          <div className="max-h-[34vh] overflow-auto px-4 pb-3 text-[13.5px] leading-relaxed text-white/85">
             {level.brief.split('\n').map((line, i) => (
               <p key={i} className="mb-1">
                 <RichText text={line} />
               </p>
             ))}
-            {level.rules && (
-              <Section title="📖 חוקי השטח" color={stage.color} items={level.rules} />
-            )}
-            {level.tools && (
-              <Section title="🧰 ציוד זמין" color={stage.color} items={level.tools} mono />
-            )}
+            {/* the steps come first: exactly what to write, in order */}
+            <div className="mt-2 rounded-lg border p-2.5" style={{ borderColor: stage.color + '66', background: stage.color + '10' }}>
+              <div className="mb-1.5 text-[13px] font-bold" style={{ color: stage.color }}>✅ מה לעשות, צעד אחר צעד</div>
+              <ol className="grid gap-1.5">
+                {level.objectives.map((o, i) => (
+                  <li key={i} className="flex items-start gap-2">
+                    <span
+                      className="mt-[1px] grid h-5 w-5 shrink-0 place-items-center rounded-full text-[11px] font-black text-black"
+                      style={{ background: stage.color }}
+                    >
+                      {i + 1}
+                    </span>
+                    <span>
+                      <RichText text={o} />
+                    </span>
+                  </li>
+                ))}
+              </ol>
+            </div>
             {level.tests.length > 1 && (
               <p className="mt-2 text-[12.5px] text-neon-cyan/85">
-                👁 יש {level.tests.length} תרחישים שונים. לחץ על המספרים ב"סיור" שמתחת לזירה ותסתכל מה מחכה לרובוט בכל אחד — ואז תחליט מה הקוד צריך לעשות.
+                👁 הקוד שלך ייבדק על {level.tests.length} מצבים שונים. רוצה לראות אותם? לחץ על המספרים ב"סיור" שמתחת לזירה.
               </p>
             )}
-            <div className="mt-2 text-[12px] font-bold tracking-wide" style={{ color: stage.color }}>🎯 מטרה</div>
-            <ul className="mt-1 grid gap-1">
-              {level.objectives.map((o, i) => (
-                <li key={i} className="flex items-start gap-2">
-                  <span className="mt-[3px] grid h-4 w-4 shrink-0 place-items-center rounded border text-[10px]" style={{ borderColor: stage.color, color: stage.color }}>
-                    ◆
-                  </span>
-                  <span>
-                    <RichText text={o} />
-                  </span>
-                </li>
-              ))}
-            </ul>
+            {level.tools && (
+              <Section title="🧰 הפקודות שיש לך" color={stage.color} items={level.tools} mono />
+            )}
+            {level.rules && (
+              <Section title="📖 איך העולם עובד" color={stage.color} items={level.rules} />
+            )}
           </div>
         )}
       </div>
